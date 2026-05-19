@@ -760,69 +760,114 @@ async function downloadPDF() {
   const RESTORE_HTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Download Premium Summary (PDF)`;
 
   try {
-    const el = document.getElementById('pdfContent');
+    const el = document.body;
 
-    // Snapshot at scale 3 for sharpness
+    // Snapshot full page at scale 2
     const canvas = await html2canvas(el, {
-      scale: 3,
+      scale: 2,
       useCORS: true,
       backgroundColor: '#F5F3EE',
       logging: false,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: el.scrollWidth,
-      width: el.scrollWidth,
+      windowWidth: document.documentElement.scrollWidth,
+      width: document.documentElement.scrollWidth,
+      height: document.documentElement.scrollHeight,
+      windowHeight: document.documentElement.scrollHeight,
     });
 
     const { jsPDF } = window.jspdf;
 
     // --- PDF page dimensions ---
-    const MARGIN   = 10;          // mm side margin for content
-    const HDR_H    = 18;          // mm teal header height
-    const FTR_H    = 10;          // mm footer area
-    const PAGE_W   = 210;         // A4 portrait width mm
-    const CONTENT_W = PAGE_W - MARGIN * 2;  // usable content width mm
+    const MARGIN    = 8;           // mm side margin
+    const HDR_H     = 18;          // mm teal header
+    const FTR_H     = 10;          // mm footer
+    const PAGE_W    = 210;         // A4 width mm
+    const PAGE_H_A4 = 297;         // A4 height mm
+    const CONTENT_W = PAGE_W - MARGIN * 2;
 
-    // Scale image to fit within content width
-    const imgAspect = canvas.height / canvas.width;
-    const imgW_mm   = CONTENT_W;
-    const imgH_mm   = imgW_mm * imgAspect;
-    const PAGE_H    = HDR_H + imgH_mm + FTR_H + 4;
+    // Scale canvas to fit content width
+    const scale     = CONTENT_W / (canvas.width / 2); // px to mm ratio
+    const totalImgH = (canvas.height / 2) * scale;    // total image height in mm
 
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [PAGE_W, PAGE_H] });
+    // How much image fits on page 1 (below header) and subsequent pages
+    const firstPageImgH = PAGE_H_A4 - HDR_H - 4 - FTR_H;
+    const otherPageImgH = PAGE_H_A4 - 8 - FTR_H;
 
-    // ── Teal header bar ──
-    pdf.setFillColor(17, 163, 135);
-    pdf.rect(0, 0, PAGE_W, HDR_H, 'F');
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(9.5);
-    pdf.text('Tata AIG — SME Exclusive  |  GHI Premium Summary  |  Healthysure', MARGIN, 11);
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
     const company = document.getElementById('companyName').value.trim() || 'Unnamed Company';
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(7.5);
-    pdf.text(
-      company + '   ·   ' + new Date().toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}),
-      PAGE_W - MARGIN, 11, { align: 'right' }
-    );
+    const dateStr = new Date().toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
 
-    // ── Content image (with side margins) ──
+    // ── Helper: draw header on a page ──
+    function drawHeader(isFirst) {
+      pdf.setFillColor(17, 163, 135);
+      pdf.rect(0, 0, PAGE_W, HDR_H, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(9.5);
+      pdf.text('Tata AIG — SME Exclusive  |  GHI Rater  |  Healthysure', MARGIN, 11);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(7.5);
+      pdf.text(company + '   ·   ' + dateStr, PAGE_W - MARGIN, 11, { align: 'right' });
+    }
+
+    // ── Helper: draw footer on a page ──
+    function drawFooter(pageNum, totalPages) {
+      pdf.setDrawColor(220, 215, 210);
+      pdf.setLineWidth(0.3);
+      pdf.line(MARGIN, PAGE_H_A4 - FTR_H + 1, PAGE_W - MARGIN, PAGE_H_A4 - FTR_H + 1);
+      pdf.setTextColor(160, 155, 150);
+      pdf.setFontSize(6.5);
+      pdf.text(
+        'Healthysure GHI Rater · Rates from HS-TAGIC_Jan_2026.xlsx · Subject to underwriting',
+        PAGE_W / 2, PAGE_H_A4 - 4, { align: 'center' }
+      );
+      pdf.text(`Page ${pageNum} of ${totalPages}`, PAGE_W - MARGIN, PAGE_H_A4 - 4, { align: 'right' });
+    }
+
+    // ── Figure out how many pages needed ──
+    const totalPages = totalImgH <= firstPageImgH
+      ? 1
+      : 1 + Math.ceil((totalImgH - firstPageImgH) / otherPageImgH);
+
+    // ── Render pages ──
     const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', MARGIN, HDR_H + 2, imgW_mm, imgH_mm);
+    let srcYmm = 0; // how far down the source image we've rendered (in mm)
 
-    // ── Footer ──
-    pdf.setDrawColor(220, 215, 210);
-    pdf.setLineWidth(0.3);
-    pdf.line(MARGIN, HDR_H + imgH_mm + 4, PAGE_W - MARGIN, HDR_H + imgH_mm + 4);
-    pdf.setTextColor(160, 155, 150);
-    pdf.setFontSize(6.5);
-    pdf.text(
-      'Generated via Healthysure GHI Rater · Rates sourced from HS-TAGIC_Jan_2026.xlsx · Subject to underwriting',
-      PAGE_W / 2, HDR_H + imgH_mm + 8, { align: 'center' }
-    );
+    for (let p = 0; p < totalPages; p++) {
+      if (p > 0) pdf.addPage('a4', 'portrait');
 
-    const filename = (company.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 30) || 'Quote') + '_GHI_Premium.pdf';
+      drawHeader(p === 0);
+
+      const yStart  = p === 0 ? HDR_H + 4 : HDR_H + 4;
+      const sliceH  = p === 0 ? firstPageImgH : otherPageImgH;
+      const remaining = totalImgH - srcYmm;
+      const drawH   = Math.min(sliceH, remaining);
+
+      // Convert mm back to canvas px for sourceY and sourceHeight
+      const srcPxPerMm = canvas.width / (CONTENT_W * 2); // canvas px per mm (at scale 2)
+      const srcY  = srcYmm  * srcPxPerMm * 2;
+      const srcH  = drawH   * srcPxPerMm * 2;
+
+      // Draw a slice of the canvas image
+      // jsPDF addImage: (imageData, format, x, y, w, h, alias, compression, rotation, sx, sy, swidth, sheight)
+      pdf.addImage(
+        imgData, 'PNG',
+        MARGIN, yStart,         // dest x, y on PDF page (mm)
+        CONTENT_W, drawH,       // dest width, height on PDF page (mm)
+        `img_slice_${p}`,       // unique alias per slice
+        'FAST',
+        0,
+        0, srcY,                // source x, y in original image (px)
+        canvas.width, srcH      // source width, height (px)
+      );
+
+      srcYmm += drawH;
+      drawFooter(p + 1, totalPages);
+    }
+
+    const filename = (company.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 30) || 'Quote') + '_GHI_Rater.pdf';
     pdf.save(filename);
   } catch(e) {
     alert('PDF generation failed. Please try again.\n' + e.message);
