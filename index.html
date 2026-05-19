@@ -760,52 +760,69 @@ async function downloadPDF() {
   const RESTORE_HTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Download Premium Summary (PDF)`;
 
   try {
-    // Capture the full results card (header + content)
     const el = document.getElementById('pdfContent');
+
+    // Snapshot at scale 3 for sharpness
     const canvas = await html2canvas(el, {
-      scale: 2,
+      scale: 3,
       useCORS: true,
       backgroundColor: '#F5F3EE',
       logging: false,
-      scrollY: -window.scrollY,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: el.scrollWidth,
+      width: el.scrollWidth,
     });
 
     const { jsPDF } = window.jspdf;
-    const imgData = canvas.toDataURL('image/png');
-    const pdfW = 210; // A4 width in mm
-    const pdfH = (canvas.height / canvas.width) * pdfW;
 
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: [pdfW, pdfH + 22],
-    });
+    // --- PDF page dimensions ---
+    const MARGIN   = 10;          // mm side margin for content
+    const HDR_H    = 18;          // mm teal header height
+    const FTR_H    = 10;          // mm footer area
+    const PAGE_W   = 210;         // A4 portrait width mm
+    const CONTENT_W = PAGE_W - MARGIN * 2;  // usable content width mm
 
-    // Teal header bar
+    // Scale image to fit within content width
+    const imgAspect = canvas.height / canvas.width;
+    const imgW_mm   = CONTENT_W;
+    const imgH_mm   = imgW_mm * imgAspect;
+    const PAGE_H    = HDR_H + imgH_mm + FTR_H + 4;
+
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [PAGE_W, PAGE_H] });
+
+    // ── Teal header bar ──
     pdf.setFillColor(17, 163, 135);
-    pdf.rect(0, 0, pdfW, 16, 'F');
+    pdf.rect(0, 0, PAGE_W, HDR_H, 'F');
     pdf.setTextColor(255, 255, 255);
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(10);
-    pdf.text('Tata AIG — SME Exclusive  |  GHI Premium Summary  |  Healthysure', 8, 10);
+    pdf.setFontSize(9.5);
+    pdf.text('Tata AIG — SME Exclusive  |  GHI Premium Summary  |  Healthysure', MARGIN, 11);
 
     const company = document.getElementById('companyName').value.trim() || 'Unnamed Company';
     pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(8);
+    pdf.setFontSize(7.5);
     pdf.text(
-      company + '   ·   ' + new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}),
-      pdfW - 8, 10, { align: 'right' }
+      company + '   ·   ' + new Date().toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}),
+      PAGE_W - MARGIN, 11, { align: 'right' }
     );
 
-    // Content snapshot
-    pdf.addImage(imgData, 'PNG', 0, 18, pdfW, pdfH);
+    // ── Content image (with side margins) ──
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', MARGIN, HDR_H + 2, imgW_mm, imgH_mm);
 
-    // Footer
+    // ── Footer ──
+    pdf.setDrawColor(220, 215, 210);
+    pdf.setLineWidth(0.3);
+    pdf.line(MARGIN, HDR_H + imgH_mm + 4, PAGE_W - MARGIN, HDR_H + imgH_mm + 4);
     pdf.setTextColor(160, 155, 150);
-    pdf.setFontSize(7);
-    pdf.text('Generated via Healthysure GHI Rater · Rates sourced from HS-TAGIC_Jan_2026.xlsx · Subject to underwriting', pdfW / 2, pdfH + 20, { align: 'center' });
+    pdf.setFontSize(6.5);
+    pdf.text(
+      'Generated via Healthysure GHI Rater · Rates sourced from HS-TAGIC_Jan_2026.xlsx · Subject to underwriting',
+      PAGE_W / 2, HDR_H + imgH_mm + 8, { align: 'center' }
+    );
 
-    const filename = (company.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30) || 'Quote') + '_GHI_Premium.pdf';
+    const filename = (company.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 30) || 'Quote') + '_GHI_Premium.pdf';
     pdf.save(filename);
   } catch(e) {
     alert('PDF generation failed. Please try again.\n' + e.message);
