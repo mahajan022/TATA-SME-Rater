@@ -225,37 +225,30 @@
   .tag.ok   { background:var(--green-light); color:var(--green); border:1px solid #B6DEC7; }
   .tag.err  { background:var(--accent-light); color:var(--accent); border:1px solid var(--accent-mid); }
 
-  /* ── PDF Download button ── */
-  .pdf-btn-wrap {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 14px;
-  }
+  /* ── PDF Download button — styled like Calculate Premium ── */
   .pdf-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: #fff;
-    border: 1.5px solid var(--res-border);
-    border-radius: 10px;
-    padding: 9px 18px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all .2s;
+    width: 100%;
+    background: #1A1714;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
     letter-spacing: .3px;
-    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background .2s, transform .1s, box-shadow .2s;
+    box-shadow: 0 4px 14px rgba(0,0,0,.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
   }
-  .pdf-btn:hover {
-    border-color: #11a387;
-    color: #11a387;
-    background: rgba(17,163,135,.05);
-    box-shadow: 0 2px 8px rgba(17,163,135,.15);
-  }
-  .pdf-btn svg { width:14px; height:14px; flex-shrink:0; }
-  .pdf-btn.loading { opacity:.6; pointer-events:none; }
+  .pdf-btn:hover { background: #2e2925; box-shadow: 0 6px 20px rgba(0,0,0,.28); }
+  .pdf-btn:active { transform: scale(.99); }
+  .pdf-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .pdf-btn.loading { opacity: .6; pointer-events: none; }
 
   /* ── Info boxes ── */
   .info-box { border-radius:10px; padding:12px 16px; font-size:12.5px; margin-top:14px; line-height:1.6; }
@@ -449,24 +442,12 @@
   <button class="calc-btn" onclick="calculate()">▶&nbsp;&nbsp;Calculate Premium</button>
 
   <!-- Results -->
+  <div id="pdfContent">
   <div class="card results-card hidden" id="resultsCard">
     <div class="section-label">
       Premium Summary —
       <span id="rCompany" style="font-style:italic;font-weight:300;text-transform:none;letter-spacing:0;margin-left:4px">—</span>
     </div>
-
-    <!-- PDF Download button -->
-    <div class="pdf-btn-wrap">
-      <button class="pdf-btn" id="pdfBtn" onclick="downloadPDF()">
-        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M2 12.5V13.5C2 14.05 2.45 14.5 3 14.5H13C13.55 14.5 14 14.05 14 13.5V12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          <path d="M8 2V10M8 10L5 7M8 10L11 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Download PDF
-      </button>
-    </div>
-
-    <div id="pdfContent">
       <div class="result-grid">
         <div class="result-cell">
           <div class="result-cell-label">Total Lives Rated</div>
@@ -519,7 +500,16 @@
 
       <div class="tag-list" id="tagList"></div>
     </div>
-  </div>
+  </div><!-- /pdfContent -->
+
+  <!-- Download PDF — full-width like Calculate Premium -->
+  <button class="pdf-btn hidden" id="pdfBtn" onclick="downloadPDF()">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Download Premium Summary (PDF)
+  </button>
 
 </div><!-- /main -->
 
@@ -755,6 +745,7 @@ function calculate() {
   tagData.forEach(t=>{const span=document.createElement('span');span.className='tag '+(t.cls||'');span.textContent=t.text;tags.appendChild(span);});
 
   document.getElementById('resultsCard').classList.remove('hidden');
+  document.getElementById('pdfBtn').classList.remove('hidden');
   document.getElementById('resultsCard').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -764,46 +755,55 @@ function calculate() {
 async function downloadPDF() {
   const btn = document.getElementById('pdfBtn');
   btn.classList.add('loading');
-  btn.textContent = 'Generating…';
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Generating PDF…`;
+
+  const RESTORE_HTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Download Premium Summary (PDF)`;
 
   try {
+    // Capture the full results card (header + content)
     const el = document.getElementById('pdfContent');
     const canvas = await html2canvas(el, {
       scale: 2,
       useCORS: true,
-      backgroundColor: '#FAFAF7',
+      backgroundColor: '#F5F3EE',
       logging: false,
+      scrollY: -window.scrollY,
     });
 
     const { jsPDF } = window.jspdf;
     const imgData = canvas.toDataURL('image/png');
-    const imgW = canvas.width;
-    const imgH = canvas.height;
-
-    // A4 page in px at 96dpi equivalent
-    const pdfW = 210; // mm
-    const pdfH = (imgH / imgW) * pdfW;
+    const pdfW = 210; // A4 width in mm
+    const pdfH = (canvas.height / canvas.width) * pdfW;
 
     const pdf = new jsPDF({
-      orientation: pdfH > pdfW ? 'portrait' : 'landscape',
+      orientation: 'portrait',
       unit: 'mm',
-      format: [pdfW, pdfH + 20],
+      format: [pdfW, pdfH + 22],
     });
 
-    // Header strip
+    // Teal header bar
     pdf.setFillColor(17, 163, 135);
-    pdf.rect(0, 0, pdfW, 14, 'F');
+    pdf.rect(0, 0, pdfW, 16, 'F');
     pdf.setTextColor(255, 255, 255);
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(10);
-    pdf.text('Tata AIG — SME Exclusive  |  GHI Premium Summary  |  Healthysure', 8, 9);
+    pdf.text('Tata AIG — SME Exclusive  |  GHI Premium Summary  |  Healthysure', 8, 10);
 
     const company = document.getElementById('companyName').value.trim() || 'Unnamed Company';
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8);
-    pdf.text(company + '   ·   Generated: ' + new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}), pdfW - 8, 9, { align: 'right' });
+    pdf.text(
+      company + '   ·   ' + new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}),
+      pdfW - 8, 10, { align: 'right' }
+    );
 
-    pdf.addImage(imgData, 'PNG', 0, 16, pdfW, pdfH);
+    // Content snapshot
+    pdf.addImage(imgData, 'PNG', 0, 18, pdfW, pdfH);
+
+    // Footer
+    pdf.setTextColor(160, 155, 150);
+    pdf.setFontSize(7);
+    pdf.text('Generated via Healthysure GHI Rater · Rates sourced from HS-TAGIC_Jan_2026.xlsx · Subject to underwriting', pdfW / 2, pdfH + 20, { align: 'center' });
 
     const filename = (company.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30) || 'Quote') + '_GHI_Premium.pdf';
     pdf.save(filename);
@@ -811,7 +811,7 @@ async function downloadPDF() {
     alert('PDF generation failed. Please try again.\n' + e.message);
   } finally {
     btn.classList.remove('loading');
-    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12.5V13.5C2 14.05 2.45 14.5 3 14.5H13C13.55 14.5 14 14.05 14 13.5V12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M8 2V10M8 10L5 7M8 10L11 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Download PDF`;
+    btn.innerHTML = RESTORE_HTML;
   }
 }
 
