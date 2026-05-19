@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tata AIG SME Exclusive — GHI Rater</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F3EE;
+    --surface: #FFFFFF;
+    --border: #E2DDD6;
+    --text-primary: #11a387;
+    --text-secondary: #6B6560;
+    --accent: #C4321A;
+    --accent-light: #FAF0EE;
+    --accent-mid: #E8C5BF;
+    --green: #1A6B3A;
+    --green-light: #EDF5F0;
+    --gold: #A07830;
+    --gold-light: #FAF5EC;
+    --tag-bg: #EDE9E3;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: #1A1714;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #11a387;
+    padding: 16px 36px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 12px rgba(0,0,0,.18);
+  }
+  
+  .logo-placeholder {
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: rgba(255,255,255,.6);
+    font-weight: 500;
+    flex-shrink: 0;
+    border: 2px dashed rgba(255,255,255,.3);
+    overflow: hidden;
+  }
+  
+  .logo-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 2px;
+  }
+  
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    color: #fff;
+    font-size: 20px;
+    line-height: 1.1;
+  }
+  .header-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,.6);
+    font-weight: 400;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .header-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,.2);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,.3);
+  }
+
+  /* ── Main ── */
+  .main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 36px 20px 0;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Form ── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+
+  input, select {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: #1A1714;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+  }
+  input:focus, select:focus {
+    border-color: #11a387;
+    box-shadow: 0 0 0 3px rgba(17, 163, 135, .2);
+    background: #fff;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+
+  /* ── Commission select ── */
+  #commSelect {
+    font-weight: 600;
+    color: var(--accent);
+    background-color: var(--accent-light);
+    border-color: var(--accent-mid);
+  }
+  #commSelect:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-mid);
+  }
+
+  /* ── Member table ── */
+  .member-table-wrap { overflow-x: auto; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: 8px 10px;
+    text-align: left;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  td:first-child { font-weight: 500; font-size: 13px; color: var(--text-secondary); width: 28px; }
+  tr:last-child td { border-bottom: none; }
+  td input, td select {
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+  td select { padding-right: 28px; }
+
+  .add-btn {
+    margin-top: 14px;
+    background: none;
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    width: 100%;
+    transition: all .2s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .add-btn:hover { border-color: #11a387; color: #11a387; background: rgba(17, 163, 135, .08); }
+
+  .del-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ccc;
+    font-size: 15px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color .15s;
+    line-height: 1;
+  }
+  .del-btn:hover { color: var(--accent); }
+
+  /* ── Band pill ── */
+  .band-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--green-light);
+    color: var(--green);
+    white-space: nowrap;
+  }
+  .band-pill.out   { background: var(--accent-light); color: var(--accent); }
+  .band-pill.empty { background: var(--tag-bg); color: var(--text-secondary); }
+
+  /* ── Live counter ── */
+  .live-counter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .live-counter-label { font-size: 12px; color: var(--text-secondary); }
+  .live-counter-val { font-weight: 700; font-size: 14px; }
+  .live-counter-val.ok   { color: var(--green); }
+  .live-counter-val.warn { color: var(--accent); }
+  .live-counter-note { margin-left: auto; font-size: 11px; }
+
+  /* ── Member base rate col ── */
+  .member-rate {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .member-rate.na { color: var(--text-secondary); font-weight: 400; }
+
+  /* ── Calculate button ── */
+  .calc-btn {
+    width: 100%;
+    background: #11a387;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    letter-spacing: .3px;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: background .2s, transform .1s, box-shadow .2s;
+    box-shadow: 0 4px 14px rgba(17, 163, 135, .25);
+  }
+  .calc-btn:hover { background: #0d8a6f; box-shadow: 0 6px 20px rgba(17, 163, 135, .35); }
+  .calc-btn:active { transform: scale(.99); }
+
+  /* ── Results ── */
+  .results-card {
+    background: #1A1714;
+    color: #fff;
+    border: none;
+    margin-top: 16px;
+  }
+  .results-card .section-label { color: rgba(255,255,255,.5); }
+  .results-card .section-label::after { background: rgba(255,255,255,.12); }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,.1);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .result-cell { background: rgba(255,255,255,.05); padding: 18px 16px; text-align: center; }
+  .result-cell-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.5);
+    margin-bottom: 6px;
+  }
+  .result-cell-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #fff;
+    line-height: 1;
+  }
+  .result-cell-value.accent { color: #F5A48B; }
+  .result-cell-value.green  { color: #7FD4A0; }
+
+  .result-breakdown {
+    background: rgba(255,255,255,.06);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .rbr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    font-size: 13px;
+  }
+  .rbr:last-child { border-bottom: none; }
+  .rbr .lbl { color: rgba(255,255,255,.6); }
+  .rbr .val { font-weight: 600; }
+  .rbr.total .lbl { color: #fff; font-weight: 600; font-size: 14px; }
+  .rbr.total .val { font-size: 16px; color: #F5A48B; font-weight: 700; }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tag {
+    background: rgba(255,255,255,.1);
+    color: rgba(255,255,255,.7);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .3px;
+  }
+  .tag.warn { background: rgba(240,200,122,.18); color: #F0C87A; }
+  .tag.ok   { background: rgba(127,212,160,.18); color: #7FD4A0; }
+  .tag.err  { background: rgba(245,164,139,.18); color: #F5A48B; }
+
+  /* ── Info boxes ── */
+  .info-box {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12.5px;
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+  .info-box.gold { background: var(--gold-light); border: 1px solid #E0C98A; color: var(--gold); }
+  .info-box.red  { background: var(--accent-light); border: 1px solid var(--accent-mid); color: var(--accent); }
+  .info-box strong { font-weight: 600; }
+
+  .hidden { display: none !important; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    .header {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-badge {
+      margin-left: 0;
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-placeholder">
+    <img src="logo.webp" alt="Logo" style="display:none" id="logoImg">
+    <span id="logoText">LOGO</span>
+  </div>
+  <div>
+    <div class="header-title">Tata AIG — SME Exclusive</div>
+    <div class="header-sub">Group Health Insurance · GHI Rater · Healthysure</div>
+  </div>
+  <div class="header-badge">Non-Gig</div>
+</div>
+
+<div class="main">
+
+  <!-- ① Company Details -->
+  <div class="card">
+    <div class="section-label">Company Details</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Company Name</label>
+        <input type="text" id="companyName" placeholder="e.g. Acme Technologies Pvt. Ltd.">
+      </div>
+      <div class="form-group">
+        <label>Policy Type</label>
+        <select id="policyType" onchange="onPolicyTypeChange()">
+          <option value="fresh">Fresh</option>
+          <option value="renewal">Renewal</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <select id="location">
+          <option value="0">Mumbai</option>
+          <option value="0">Thane</option>
+          <option value="0">Delhi / NCR</option>
+          <option value="0">Noida</option>
+          <option value="0">Gurgaon</option>
+          <option value="0">Faridabad</option>
+          <option value="0">Ghaziabad</option>
+          <option value="0">Ahmedabad</option>
+          <option value="0">Surat</option>
+          <option value="0">Vadodara</option>
+          <option value="0">Pune</option>
+          <option value="0">Cochin</option>
+          <option value="0">Hyderabad</option>
+          <option value="0">Bengaluru</option>
+          <option value="0">Kolkata</option>
+          <option value="0">Chennai</option>
+          <option value="0.1">Other (10% discount)</option>
+        </select>
+      </div>
+    </div>
+    <div class="info-box gold hidden" id="renewalNote">
+      <strong>Renewal Case:</strong> Exclusive mandate is required. Loss ratio must be ≤ 75% for Tata AIG to accept the case.
+    </div>
+  </div>
+
+  <!-- ② Plan Configuration -->
+  <div class="card">
+    <div class="section-label">Plan Configuration</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Family Definition</label>
+        <select id="familyDef" onchange="onFamilyDefChange()">
+          <option value="E">Employee Only (Self)</option>
+          <option value="ESC">Employee + Spouse + Children</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Sum Insured</label>
+        <select id="sumInsured" onchange="onSIChange()">
+          <option value="100000">₹1 Lakh</option>
+          <option value="200000">₹2 Lakh</option>
+          <option value="300000">₹3 Lakh</option>
+          <option value="500000" selected>₹5 Lakh</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Maternity Cover</label>
+        <select id="maternityCover" onchange="onMaternityChange()">
+          <option value="no">Not Applicable</option>
+          <option value="yes">Included</option>
+        </select>
+      </div>
+      <div class="form-group hidden" id="maternitySIGroup">
+        <label>Maternity Sum Insured</label>
+        <select id="maternitySI">
+          <option value="35000">₹35,000</option>
+          <option value="50000">₹50,000</option>
+          <option value="75000">₹75,000</option>
+        </select>
+      </div>
+    </div>
+    <div class="info-box gold hidden" id="matNote">
+      <strong>Maternity Note:</strong> Loading applies only to <strong>female employees &amp; female spouses aged 18–45</strong>. Minimum 10 employees required to offer maternity. Covers Normal delivery, C-section &amp; newborn expenses up to maternity SI.
+    </div>
+    <div class="info-box red hidden" id="matEOnlyNote">
+      <strong>Heads-up:</strong> Maternity is most applicable when the plan covers spouses. For Employee Only plans, confirm with Tata AIG underwriting before quoting maternity.
+    </div>
+    <div class="info-box gold hidden" id="waitingNote">
+      <strong>Waiting Periods:</strong> ≥ 10 employees → PED &amp; Specific Disease waits are <strong>Nil</strong>. &lt; 10 employees → 1-year waiting period applies to both.
+    </div>
+  </div>
+
+  <!-- ③ Commission / Mark-up -->
+  <div class="card">
+    <div class="section-label">Commission / Mark-up</div>
+    <div class="form-group">
+      <label>Select Mark-up %</label>
+      <select id="commSelect" onchange="onCommChange()">
+        <option value="0">0.0% — No mark-up (pass base rate)</option>
+        <option value="2.5">2.5%</option>
+        <option value="5">5.0%</option>
+        <option value="7.5">7.5%</option>
+        <option value="10">10.0%</option>
+        <option value="12.5">12.5%</option>
+        <option value="15" selected>15.0%</option>
+        <option value="17.5">17.5%</option>
+        <option value="20">20.0%</option>
+        <option value="22.5">22.5%</option>
+        <option value="25">25.0% — Standard Limit</option>
+        <option value="27.5">27.5% ⚠ Above Standard</option>
+        <option value="30">30.0% ⚠ Maximum (SME Exclusive Mandate)</option>
+      </select>
+    </div>
+    <div class="info-box gold hidden" id="commWarnBox">
+      <strong>⚠ Above Standard Limit (25%):</strong> This mark-up is only permissible under the Healthysure SME Exclusive mandate. Ensure exclusive mandate is confirmed with Tata AIG before quoting.
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;">Mark-up is applied on sub-total (base ± location discount + maternity) before 18% GST.</p>
+  </div>
+
+  <!-- ④ Member Details -->
+  <div class="card">
+    <div class="section-label">Member Details</div>
+    <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:16px;">
+      Min <strong>7 lives</strong> (all employees), max 100. Employee age 18–60 (renewal up to 65). Children 0–25 years, max 4 per employee. Base rate shown per life for selected SI.
+    </p>
+    <div class="member-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th style="min-width:100px">Name</th>
+            <th style="width:65px">Age</th>
+            <th style="min-width:105px">Relationship</th>
+            <th style="min-width:85px">Gender</th>
+            <th style="min-width:88px">Age Band</th>
+            <th style="min-width:78px;text-align:right">Base Rate</th>
+            <th style="width:30px"></th>
+          </tr>
+        </thead>
+        <tbody id="memberBody"></tbody>
+      </table>
+    </div>
+    <button class="add-btn" onclick="addMember()">+ Add Member</button>
+
+    <div class="live-counter">
+      <span class="live-counter-label">Total Lives:</span>
+      <span class="live-counter-val" id="livesCount">0</span>
+      <span style="color:var(--border)">|</span>
+      <span class="live-counter-label">Employees:</span>
+      <span class="live-counter-val" id="empCount">0</span>
+      <span class="live-counter-note" id="minLivesNote"></span>
+    </div>
+
+    <div class="info-box red hidden" id="memberErr">
+      At least <strong>7 employee</strong> lives are required to bind this policy with Tata AIG.
+    </div>
+  </div>
+
+  <!-- Calculate -->
+  <button class="calc-btn" onclick="calculate()">▶&nbsp;&nbsp;Calculate Premium</button>
+
+  <!-- Results -->
+  <div class="card results-card hidden" id="resultsCard">
+    <div class="section-label">
+      Premium Summary —
+      <span id="rCompany" style="font-style:italic;font-weight:300;text-transform:none;letter-spacing:0;margin-left:4px">—</span>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-cell">
+        <div class="result-cell-label">Total Lives Rated</div>
+        <div class="result-cell-value" id="rLives">—</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-cell-label">Net Premium (excl. GST)</div>
+        <div class="result-cell-value accent" id="rNet">—</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-cell-label">Gross Premium (incl. GST)</div>
+        <div class="result-cell-value green" id="rGross">—</div>
+      </div>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="rbr">
+        <span class="lbl">Base Premium (all rated lives, excl. GST &amp; mark-up)</span>
+        <span class="val" id="rBase">—</span>
+      </div>
+      <div class="rbr" id="rLocRow">
+        <span class="lbl">Location Discount (10%)</span>
+        <span class="val" id="rLoc">—</span>
+      </div>
+      <div class="rbr" id="rMatRow">
+        <span class="lbl">Maternity Loading (eligible female lives)</span>
+        <span class="val" id="rMat">—</span>
+      </div>
+      <div class="rbr">
+        <span class="lbl">Sub-total (before mark-up)</span>
+        <span class="val" id="rSubBeforeComm">—</span>
+      </div>
+      <div class="rbr">
+        <span class="lbl">Mark-up / Commission</span>
+        <span class="val" id="rComm">—</span>
+      </div>
+      <div class="rbr">
+        <span class="lbl">Net Premium (excl. GST)</span>
+        <span class="val" id="rNetSub">—</span>
+      </div>
+      <div class="rbr">
+        <span class="lbl">GST @ 18%</span>
+        <span class="val" id="rGST">—</span>
+      </div>
+      <div class="rbr total">
+        <span class="lbl">Total Gross Premium</span>
+        <span class="val" id="rGrossTotal">—</span>
+      </div>
+    </div>
+
+    <div class="tag-list" id="tagList"></div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// LOGO HANDLING
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('load', function() {
+  const img = document.getElementById('logoImg');
+  const txt = document.getElementById('logoText');
+  const logoDiv = document.querySelector('.logo-placeholder');
+  
+  img.onerror = function() {
+    img.style.display = 'none';
+    txt.style.display = 'block';
+  };
+  
+  img.onload = function() {
+    txt.style.display = 'none';
+    img.style.display = 'block';
+  };
+});
+
+// ═══════════════════════════════════════════════════════════
+// RATE TABLES — sourced directly from HS-TAGIC_Jan_2026.xlsx
+// Per life per year · Exclusive of GST · At 0% commission
+// ═══════════════════════════════════════════════════════════
+
+const RATES_E = {
+  '[18-25]': { 100000:1182,  200000:1633,  300000:2100,  500000:2969  },
+  '[26-35]': { 100000:1580,  200000:2178,  300000:2794,  500000:3944  },
+  '[36-45]': { 100000:2184,  200000:3004,  300000:3846,  500000:5424  },
+  '[46-50]': { 100000:2841,  200000:3903,  300000:4992,  500000:7034  },
+  '[51-55]': { 100000:3602,  200000:4946,  300000:6319,  500000:8900  },
+  '[56-60]': { 100000:4854,  200000:6660,  300000:8503,  500000:11970 },
+};
+
+// ESC — floater family plan; each life rated by own age band
+const RATES_ESC = {
+  '[0-5]':   { 100000:1878,  200000:2583,  300000:3310,  500000:4666  },
+  '[6-17]':  { 100000:996,   200000:1377,  300000:1775,  500000:2510  },
+  '[18-25]': { 100000:1418,  200000:1960,  300000:2520,  500000:3563  },
+  '[26-35]': { 100000:1896,  200000:2614,  300000:3353,  500000:4733  },
+  '[36-45]': { 100000:2621,  200000:3605,  300000:4615,  500000:6509  },
+  '[46-50]': { 100000:3409,  200000:4684,  300000:5990,  500000:8441  },
+  '[51-55]': { 100000:4322,  200000:5935,  300000:7583,  500000:10680 },
+  '[56-60]': { 100000:5825,  200000:7992,  300000:10204, 500000:14364 },
+};
+
+// Maternity loading (female employee/spouse aged 18–45 only)
+// Source: Loadings&Discounts sheet — rounded from exact file values
+const MATERNITY_LOADING = {
+  '[18-25]': { 35000:3326, 50000:3779, 75000:5913 },
+  '[26-35]': { 35000:3354, 50000:4091, 75000:6542 },
+  '[36-45]': { 35000:735,  50000:845,  75000:1358  },
+};
+
+// ═══════════════════════════════════════════════════════════
+// AGE BAND RESOLVERS
+// ═══════════════════════════════════════════════════════════
+
+function getAgeBandE(age) {
+  if (age >= 18 && age <= 25) return '[18-25]';
+  if (age >= 26 && age <= 35) return '[26-35]';
+  if (age >= 36 && age <= 45) return '[36-45]';
+  if (age >= 46 && age <= 50) return '[46-50]';
+  if (age >= 51 && age <= 55) return '[51-55]';
+  if (age >= 56 && age <= 60) return '[56-60]';
+  return null;
+}
+
+function getAgeBandESC(age) {
+  if (age >= 0  && age <= 5)  return '[0-5]';
+  if (age >= 6  && age <= 17) return '[6-17]';
+  if (age >= 18 && age <= 25) return '[18-25]';
+  if (age >= 26 && age <= 35) return '[26-35]';
+  if (age >= 36 && age <= 45) return '[36-45]';
+  if (age >= 46 && age <= 50) return '[46-50]';
+  if (age >= 51 && age <= 55) return '[51-55]';
+  if (age >= 56 && age <= 60) return '[56-60]';
+  return null;
+}
+
+function getMatBand(age) {
+  if (age >= 18 && age <= 25) return '[18-25]';
+  if (age >= 26 && age <= 35) return '[26-35]';
+  if (age >= 36 && age <= 45) return '[36-45]';
+  return null;
+}
+
+// Returns { band, rate } or null
+function resolveRate(fd, age, si) {
+  const rates = fd === 'E' ? RATES_E : RATES_ESC;
+  const band  = fd === 'E' ? getAgeBandE(age) : getAgeBandESC(age);
+  if (!band) return null;
+  const rate = rates[band] && rates[band][si];
+  if (rate == null) return null;
+  return { band, rate };
+}
+
+// ═══════════════════════════════════════════════════════════
+// MEMBER TABLE
+// ═══════════════════════════════════════════════════════════
+
+let memberCount = 0;
+
+function addMember(opts = {}) {
+  memberCount++;
+  const id     = memberCount;
+  const tbody  = document.getElementById('memberBody');
+  const tr     = document.createElement('tr');
+  tr.id        = 'row_' + id;
+
+  const defaultRel    = opts.rel    || 'Employee';
+  const defaultAge    = (opts.age  !== undefined) ? opts.age : '';
+  const defaultGender = opts.gender || 'Male';
+  const defaultName   = opts.name   || '';
+
+  const relOpts = ['Employee','Spouse','Child']
+    .map(r => `<option value="${r}"${r===defaultRel?' selected':''}>${r}</option>`).join('');
+  const genOpts = ['Male','Female']
+    .map(g => `<option value="${g}"${g===defaultGender?' selected':''}>${g}</option>`).join('');
+
+  tr.innerHTML = `
+    <td>${id}</td>
+    <td><input type="text" placeholder="Name (optional)" value="${defaultName}" style="min-width:90px"></td>
+    <td><input type="number" min="0" max="100" placeholder="Age"
+               value="${defaultAge}" style="width:60px"
+               oninput="onAgeInput(this,${id})"></td>
+    <td><select onchange="updateLiveCounter()">${relOpts}</select></td>
+    <td><select onchange="updateLiveCounter()">${genOpts}</select></td>
+    <td id="band_${id}"><span class="band-pill empty">—</span></td>
+    <td class="member-rate na" id="rate_${id}">—</td>
+    <td><button class="del-btn" onclick="deleteMember(${id})" title="Remove">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+
+  // If pre-filled with age, resolve immediately
+  if (defaultAge !== '') {
+    const inp = tr.querySelector('input[type=number]');
+    refreshRowDisplay(inp, id);
+  }
+
+  updateLiveCounter();
+}
+
+function deleteMember(id) {
+  const el = document.getElementById('row_' + id);
+  if (el) { el.remove(); updateLiveCounter(); }
+}
+
+function onAgeInput(input, id) {
+  refreshRowDisplay(input, id);
+  updateLiveCounter();
+}
+
+function refreshRowDisplay(input, id) {
+  const ageRaw = input.value.trim();
+  const age    = parseInt(ageRaw);
+  const fd     = document.getElementById('familyDef').value;
+  const si     = parseInt(document.getElementById('sumInsured').value);
+  const bandCell = document.getElementById('band_' + id);
+  const rateCell = document.getElementById('rate_' + id);
+
+  if (ageRaw === '' || isNaN(age)) {
+    bandCell.innerHTML = '<span class="band-pill empty">—</span>';
+    rateCell.textContent = '—';
+    rateCell.className = 'member-rate na';
+    return;
+  }
+
+  const result = resolveRate(fd, age, si);
+  if (result) {
+    bandCell.innerHTML = `<span class="band-pill">${result.band}</span>`;
+    rateCell.textContent = '₹' + result.rate.toLocaleString('en-IN');
+    rateCell.className = 'member-rate';
+  } else {
+    bandCell.innerHTML = '<span class="band-pill out">Out of range</span>';
+    rateCell.textContent = '—';
+    rateCell.className = 'member-rate na';
+  }
+}
+
+function refreshAllRows() {
+  document.querySelectorAll('#memberBody tr').forEach(row => {
+    const id  = parseInt(row.id.replace('row_', ''));
+    const inp = row.querySelector('input[type=number]');
+    if (inp) refreshRowDisplay(inp, id);
+  });
+}
+
+function updateLiveCounter() {
+  const rows = document.querySelectorAll('#memberBody tr');
+  let empCount = 0;
+  rows.forEach(row => {
+    const sel = row.querySelector('td:nth-child(4) select');
+    if (sel && sel.value === 'Employee') empCount++;
+  });
+  const total = rows.length;
+
+  document.getElementById('livesCount').textContent = total;
+  document.getElementById('livesCount').className   = 'live-counter-val ' + (total >= 7 ? 'ok' : 'warn');
+  document.getElementById('empCount').textContent   = empCount;
+  document.getElementById('empCount').className     = 'live-counter-val ' + (empCount >= 7 ? 'ok' : 'warn');
+
+  const noteEl = document.getElementById('minLivesNote');
+  if (empCount < 7) {
+    noteEl.textContent = `Need ${7 - empCount} more employee(s)`;
+    noteEl.style.color = 'var(--accent)';
+  } else {
+    noteEl.textContent = '✓ Minimum met';
+    noteEl.style.color = 'var(--green)';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// UI EVENT HANDLERS
+// ═══════════════════════════════════════════════════════════
+
+function onPolicyTypeChange() {
+  const isRenewal = document.getElementById('policyType').value === 'renewal';
+  document.getElementById('renewalNote').classList.toggle('hidden', !isRenewal);
+}
+
+function onFamilyDefChange() {
+  refreshAllRows();
+  onMaternityChange();
+}
+
+function onSIChange() {
+  refreshAllRows();
+}
+
+function onMaternityChange() {
+  const hasMat = document.getElementById('maternityCover').value === 'yes';
+  const fd     = document.getElementById('familyDef').value;
+  document.getElementById('maternitySIGroup').classList.toggle('hidden', !hasMat);
+  document.getElementById('matNote').classList.toggle('hidden', !hasMat);
+  document.getElementById('matEOnlyNote').classList.toggle('hidden', !(hasMat && fd === 'E'));
+  document.getElementById('waitingNote').classList.toggle('hidden', !hasMat);
+}
+
+function onCommChange() {
+  const val = parseFloat(document.getElementById('commSelect').value);
+  document.getElementById('commWarnBox').classList.toggle('hidden', val <= 25);
+  const sel = document.getElementById('commSelect');
+  if (val > 25) {
+    sel.style.color           = 'var(--gold)';
+    sel.style.borderColor     = '#E0C98A';
+    sel.style.backgroundColor = 'var(--gold-light)';
+  } else {
+    sel.style.color           = 'var(--accent)';
+    sel.style.borderColor     = 'var(--accent-mid)';
+    sel.style.backgroundColor = 'var(--accent-light)';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CALCULATE
+// ═══════════════════════════════════════════════════════════
+
+function fmt(n) {
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+
+function calculate() {
+  document.getElementById('memberErr').classList.add('hidden');
+
+  const fd       = document.getElementById('familyDef').value;
+  const si       = parseInt(document.getElementById('sumInsured').value);
+  const commPct  = parseFloat(document.getElementById('commSelect').value) / 100;
+  const matCover = document.getElementById('maternityCover').value === 'yes';
+  const matSI    = matCover ? parseInt(document.getElementById('maternitySI').value) : 0;
+
+  // Location discount — read numeric value attribute of selected option
+  const locSel  = document.getElementById('location');
+  const locDisc = parseFloat(locSel.options[locSel.selectedIndex].value) || 0;
+
+  const rows = document.querySelectorAll('#memberBody tr');
+
+  let empCount   = 0;
+  let ratedLives = 0;
+  let totalBase  = 0;
+  let totalMat   = 0;
+  let skippedCount = 0;
+
+  rows.forEach(row => {
+    const tds    = row.querySelectorAll('td');
+    const ageVal = tds[2].querySelector('input').value.trim();
+    const age    = parseInt(ageVal);
+    const rel    = tds[3].querySelector('select').value;
+    const gender = tds[4].querySelector('select').value;
+
+    // Count employees regardless of age input
+    if (rel === 'Employee') empCount++;
+
+    // Skip rows with no age
+    if (ageVal === '' || isNaN(age)) { skippedCount++; return; }
+
+    const result = resolveRate(fd, age, si);
+    if (!result) { skippedCount++; return; }
+
+    totalBase += result.rate;
+    ratedLives++;
+
+    // Maternity loading: female employee OR female spouse, age 18–45 only
+    if (matCover && gender === 'Female' && (rel === 'Employee' || rel === 'Spouse')) {
+      const mb = getMatBand(age);
+      if (mb && MATERNITY_LOADING[mb] && MATERNITY_LOADING[mb][matSI]) {
+        totalMat += MATERNITY_LOADING[mb][matSI];
+      }
+    }
+  });
+
+  if (empCount < 7) {
+    document.getElementById('memberErr').classList.remove('hidden');
+    document.getElementById('memberErr').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // ── Premium calculation chain ──
+  const locAmt       = totalBase * locDisc;
+  const afterLoc     = totalBase - locAmt;
+  const afterMat     = afterLoc + totalMat;
+  const commAmt      = afterMat * commPct;
+  const netPremium   = afterMat + commAmt;
+  const gst          = netPremium * 0.18;
+  const grossPremium = netPremium + gst;
+
+  // ── Populate result cells ──
+  const company = document.getElementById('companyName').value.trim() || 'Unnamed Company';
+  document.getElementById('rCompany').textContent    = company;
+  document.getElementById('rLives').textContent      = ratedLives;
+  document.getElementById('rNet').textContent        = fmt(netPremium);
+  document.getElementById('rGross').textContent      = fmt(grossPremium);
+  document.getElementById('rBase').textContent       = fmt(totalBase);
+
+  if (locDisc > 0) {
+    document.getElementById('rLoc').textContent     = `− ${fmt(locAmt)} (${(locDisc*100).toFixed(0)}%)`;
+    document.getElementById('rLocRow').style.display = '';
+  } else {
+    document.getElementById('rLocRow').style.display = 'none';
+  }
+
+  if (matCover && totalMat > 0) {
+    document.getElementById('rMat').textContent     = `+ ${fmt(totalMat)}`;
+    document.getElementById('rMatRow').style.display = '';
+  } else {
+    document.getElementById('rMatRow').style.display = 'none';
+  }
+
+  document.getElementById('rSubBeforeComm').textContent = fmt(afterMat);
+  document.getElementById('rComm').textContent = commPct > 0
+    ? `+ ${fmt(commAmt)} (${(commPct*100).toFixed(1)}%)`
+    : 'Nil (0%)';
+  document.getElementById('rNetSub').textContent      = fmt(netPremium);
+  document.getElementById('rGST').textContent         = fmt(gst);
+  document.getElementById('rGrossTotal').textContent  = fmt(grossPremium);
+
+  // ── Tags ──
+  const tags = document.getElementById('tagList');
+  tags.innerHTML = '';
+
+  const isRenewal = document.getElementById('policyType').value === 'renewal';
+  const locLabel  = locSel.options[locSel.selectedIndex].text;
+
+  const tagData = [
+    { text: fd === 'E' ? 'Employee Only' : 'E + Spouse + Children',    cls: '' },
+    { text: `SI ₹${(si/100000).toFixed(0)} Lakh`,                       cls: '' },
+    { text: `${ratedLives} Lives Rated`,                                 cls: ratedLives >= 7 ? 'ok' : 'warn' },
+    { text: `${empCount} Employees`,                                     cls: empCount >= 10 ? 'ok' : '' },
+    { text: matCover ? `Maternity ₹${(matSI/1000).toFixed(0)}K` : 'No Maternity', cls: matCover ? 'ok' : '' },
+    { text: isRenewal ? 'Renewal — Exclusive Mandate Required' : 'Fresh Policy', cls: isRenewal ? 'warn' : 'ok' },
+    { text: commPct > 0 ? `Mark-up ${(commPct*100).toFixed(1)}%` : 'No Mark-up', cls: commPct > 0.25 ? 'warn' : (commPct > 0 ? 'ok' : '') },
+    { text: locDisc > 0 ? `10% Discount — ${locLabel}` : `No Discount — ${locLabel}`, cls: locDisc > 0 ? 'ok' : '' },
+    { text: empCount < 10 ? 'PED / Specific Wait: 1 Year' : 'PED & Specific: Nil Waiting', cls: empCount < 10 ? 'warn' : 'ok' },
+  ];
+  if (skippedCount > 0) {
+    tagData.push({ text: `${skippedCount} member(s) skipped (no age / out of range)`, cls: 'err' });
+  }
+
+  tagData.forEach(t => {
+    const span = document.createElement('span');
+    span.className = 'tag ' + (t.cls || '');
+    span.textContent = t.text;
+    tags.appendChild(span);
+  });
+
+  document.getElementById('resultsCard').classList.remove('hidden');
+  document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT — pre-load 7 dummy employee rows (meets minimum lives)
+// ═══════════════════════════════════════════════════════════
+const seed = [
+  { name:'Employee 1', age:32, rel:'Employee', gender:'Male'   },
+  { name:'Employee 2', age:28, rel:'Employee', gender:'Female' },
+  { name:'Employee 3', age:41, rel:'Employee', gender:'Male'   },
+  { name:'Employee 4', age:35, rel:'Employee', gender:'Male'   },
+  { name:'Employee 5', age:29, rel:'Employee', gender:'Female' },
+  { name:'Employee 6', age:47, rel:'Employee', gender:'Male'   },
+  { name:'Employee 7', age:38, rel:'Employee', gender:'Female' },
+];
+seed.forEach(e => addMember(e));
+</script>
+</body>
+</html>
