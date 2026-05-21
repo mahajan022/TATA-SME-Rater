@@ -8,888 +8,729 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  :root {
-    --bg: #F5F3EE;
-    --surface: #FFFFFF;
-    --border: #E2DDD6;
-    --text-primary: #11a387;
-    --text-secondary: #6B6560;
-    --accent: #C4321A;
-    --accent-light: #FAF0EE;
-    --accent-mid: #E8C5BF;
-    --green: #1A6B3A;
-    --green-light: #EDF5F0;
-    --gold: #A07830;
-    --gold-light: #FAF5EC;
-    --tag-bg: #EDE9E3;
+:root {
+  --bg:#F5F3EE;--surface:#FFF;--border:#E2DDD6;
+  --teal:#11a387;--teal-dark:#0d8a6f;--teal-light:rgba(17,163,135,.08);
+  --text:#1A1714;--sub:#6B6560;--tag-bg:#EDE9E3;
+  --accent:#C4321A;--accent-light:#FAF0EE;--accent-mid:#E8C5BF;
+  --green:#1A6B3A;--green-light:#EDF5F0;
+  --gold:#A07830;--gold-light:#FAF5EC;--gold-border:#E0C98A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
 
-    /* Results card — light warm palette */
-    --res-bg: #FAFAF7;
-    --res-surface: #FFFFFF;
-    --res-border: #E2DDD6;
-    --res-text: #1A1714;
-    --res-sub: #6B6560;
-    --res-accent: #C4321A;
-    --res-green: #1A6B3A;
-    --res-cell-bg: #F5F3EE;
-    --res-cell-border: #E2DDD6;
-    --res-breakdown-bg: #F0EDE8;
-    --res-row-border: #E2DDD6;
-    --res-total-val: #C4321A;
-  }
+.hdr{background:var(--teal);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.hdr-title{font-family:'DM Serif Display',serif;color:#fff;font-size:19px;line-height:1.1}
+.hdr-sub{font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.hdr-badge{margin-left:auto;background:rgba(255,255,255,.2);color:#fff;padding:5px 14px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border:1px solid rgba(255,255,255,.3);flex-shrink:0}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+.main{max-width:860px;margin:0 auto;padding:32px 16px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 28px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: #1A1714;
-    min-height: 100vh;
-    padding: 0 0 60px;
-  }
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.full{grid-column:1/-1}
+label{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:5px}
+input,select{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;width:100%}
+input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(17,163,135,.18);background:#fff}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
 
-  /* ── Header ── */
-  .header {
-    background: #11a387;
-    padding: 16px 36px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    box-shadow: 0 2px 12px rgba(0,0,0,.18);
-  }
-  .logo-placeholder {
-    width: 48px; height: 48px;
-    background: rgba(255,255,255,.15);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; color: rgba(255,255,255,.6); font-weight: 500;
-    flex-shrink: 0;
-    border: 2px dashed rgba(255,255,255,.3);
-    overflow: hidden;
-  }
-  .logo-placeholder img { width:100%; height:100%; object-fit:contain; padding:2px; }
-  .header-title { font-family:'DM Serif Display',serif; color:#fff; font-size:20px; line-height:1.1; }
-  .header-sub { font-size:11px; color:rgba(255,255,255,.6); font-weight:400; letter-spacing:.5px; text-transform:uppercase; margin-top:2px; }
-  .header-badge { margin-left:auto; background:rgba(255,255,255,.2); color:#fff; padding:6px 16px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; flex-shrink:0; border:1px solid rgba(255,255,255,.3); }
+.company-wrap{position:relative}
+.decline-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:16px;display:none;pointer-events:none}
+.decline-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:2px solid var(--accent);border-radius:12px;padding:14px 16px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);display:none}
+.decline-panel.show{display:block}
+.decline-panel h4{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px}
+.decline-panel p{font-size:12px;color:var(--sub);line-height:1.5}
+.decline-tags{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.decline-tag{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:500}
 
-  /* ── Main ── */
-  .main { max-width:760px; margin:0 auto; padding:36px 20px 0; }
+.agg-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.agg-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:620px}
+.agg-tbl th{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--sub);padding:9px 10px;text-align:center;background:var(--bg);border-bottom:2px solid var(--border);white-space:nowrap}
+.agg-tbl th.left-h{text-align:left;min-width:110px}
+.agg-tbl td{padding:6px 7px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle}
+.agg-tbl tr:last-child td{border-bottom:none}
+.agg-tbl td.row-label{font-weight:600;color:var(--sub);text-align:left;font-size:12px;padding-left:4px;white-space:nowrap}
+.agg-tbl td input{padding:8px 6px;font-size:13px;border-radius:8px;text-align:center;background:var(--bg);min-width:52px}
+.agg-tbl td input:focus{background:#fff}
+.agg-tbl td input.disabled-cell{background:#f0ede8;color:#ccc;cursor:not-allowed;border-color:#e8e4df;pointer-events:none}
+.agg-foot-row td{background:var(--bg);font-weight:700;font-size:13px;border-top:2px solid var(--border);padding:9px 7px}
+.agg-foot-row td.row-label{color:var(--text)}
+.col-rate{display:block;font-size:10px;color:var(--teal);font-weight:500;margin-top:2px;letter-spacing:0}
 
-  /* ── Card ── */
-  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px 32px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,.04); }
+.live-bar{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 14px;background:var(--bg);border-radius:10px;border:1px solid var(--border);flex-wrap:wrap}
+.lc-lbl{font-size:12px;color:var(--sub)}
+.lc-val{font-weight:700;font-size:14px}
+.lc-val.ok{color:var(--green)}
+.lc-val.warn{color:var(--accent)}
+.lc-note{margin-left:auto;font-size:11px}
 
-  .section-label { font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-secondary); margin-bottom:18px; display:flex; align-items:center; gap:8px; }
-  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.info{border-radius:10px;padding:11px 15px;font-size:12.5px;margin-top:12px;line-height:1.6}
+.info.gold{background:var(--gold-light);border:1px solid var(--gold-border);color:var(--gold)}
+.info.red{background:var(--accent-light);border:1px solid var(--accent-mid);color:var(--accent)}
+.info.green{background:var(--green-light);border:1px solid #B6DEC7;color:var(--green)}
+.info strong{font-weight:700}
 
-  /* ── Form ── */
-  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .form-group { display:flex; flex-direction:column; gap:6px; }
-  .form-group.full { grid-column:1 / -1; }
+.mat-section{margin-top:20px;padding-top:18px;border-top:1px dashed var(--border)}
 
-  label { font-size:12px; font-weight:500; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.4px; }
+#commSelect{font-weight:600;color:var(--accent);background-color:var(--accent-light);border-color:var(--accent-mid)}
+#commSelect:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-mid)}
 
-  input, select {
-    background:var(--bg); border:1.5px solid var(--border); border-radius:10px;
-    padding:11px 14px; font-family:'DM Sans',sans-serif; font-size:14px; color:#1A1714;
-    outline:none; transition:border-color .2s,box-shadow .2s; appearance:none; -webkit-appearance:none; width:100%;
-  }
-  input:focus, select:focus { border-color:#11a387; box-shadow:0 0 0 3px rgba(17,163,135,.2); background:#fff; }
-  select {
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:pointer;
-  }
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
-  input[type="number"] { -moz-appearance:textfield; }
+.calc-btn{width:100%;background:var(--teal);color:#fff;border:none;border-radius:12px;padding:15px;font-family:'DM Serif Display',serif;font-size:17px;cursor:pointer;margin-top:4px;transition:background .2s,box-shadow .2s;box-shadow:0 4px 14px rgba(17,163,135,.25)}
+.calc-btn:hover{background:var(--teal-dark);box-shadow:0 6px 20px rgba(17,163,135,.35)}
+.calc-btn:active{transform:scale(.99)}
 
-  #commSelect { font-weight:600; color:var(--accent); background-color:var(--accent-light); border-color:var(--accent-mid); }
-  #commSelect:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-mid); }
+.results-card{background:#FAFAF7;border:1.5px solid var(--border);margin-top:14px}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.result-cell{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.result-cell-label{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--sub);margin-bottom:7px}
+.result-cell-value{font-family:'DM Serif Display',serif;font-size:21px;line-height:1}
+.result-cell-value.accent{color:var(--accent)}
+.result-cell-value.green{color:var(--green)}
+.result-breakdown{background:#F0EDE8;border-radius:12px;padding:16px 18px;border:1px solid var(--border)}
+.rbr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.rbr:last-child{border-bottom:none}
+.rbr .lbl{color:var(--sub)}
+.rbr .val{font-weight:600;color:var(--text)}
+.rbr.total .lbl{color:var(--text);font-weight:700;font-size:14px}
+.rbr.total .val{font-size:17px;color:var(--accent);font-weight:700}
+.tag-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.tag{background:var(--tag-bg);color:var(--sub);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:500}
+.tag.warn{background:#FEF3E2;color:var(--gold);border:1px solid var(--gold-border)}
+.tag.ok{background:var(--green-light);color:var(--green);border:1px solid #B6DEC7}
+.tag.err{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid)}
 
-  /* ── Member table ── */
-  .member-table-wrap { overflow-x:auto; margin-top:4px; }
-  table { width:100%; border-collapse:collapse; }
-  th { font-size:11px; font-weight:600; letter-spacing:.6px; text-transform:uppercase; color:var(--text-secondary); padding:8px 10px; text-align:left; background:var(--bg); border-bottom:1px solid var(--border); }
-  td { padding:6px 8px; border-bottom:1px solid var(--border); vertical-align:middle; }
-  td:first-child { font-weight:500; font-size:13px; color:var(--text-secondary); width:28px; }
-  tr:last-child td { border-bottom:none; }
-  td input, td select { padding:8px 10px; font-size:13px; border-radius:8px; }
-  td select { padding-right:28px; }
+.pdf-btn{width:100%;background:#1A1714;color:#fff;border:none;border-radius:12px;padding:15px;font-family:'DM Serif Display',serif;font-size:17px;cursor:pointer;margin-top:10px;transition:background .2s,box-shadow .2s;box-shadow:0 4px 14px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;gap:10px}
+.pdf-btn:hover{background:#2e2925}
+.pdf-btn svg{width:17px;height:17px;flex-shrink:0}
+.pdf-btn.loading{opacity:.6;pointer-events:none}
 
-  .add-btn { margin-top:14px; background:none; border:1.5px dashed var(--border); border-radius:10px; padding:9px 16px; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--text-secondary); cursor:pointer; width:100%; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:6px; }
-  .add-btn:hover { border-color:#11a387; color:#11a387; background:rgba(17,163,135,.08); }
-
-  .del-btn { background:none; border:none; cursor:pointer; color:#ccc; font-size:15px; padding:2px 6px; border-radius:4px; transition:color .15s; line-height:1; }
-  .del-btn:hover { color:var(--accent); }
-
-  .band-pill { display:inline-block; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:600; background:var(--green-light); color:var(--green); white-space:nowrap; }
-  .band-pill.out { background:var(--accent-light); color:var(--accent); }
-  .band-pill.empty { background:var(--tag-bg); color:var(--text-secondary); }
-
-  .live-counter { display:flex; align-items:center; gap:10px; margin-top:12px; padding:10px 14px; background:var(--bg); border-radius:10px; border:1px solid var(--border); flex-wrap:wrap; }
-  .live-counter-label { font-size:12px; color:var(--text-secondary); }
-  .live-counter-val { font-weight:700; font-size:14px; }
-  .live-counter-val.ok   { color:var(--green); }
-  .live-counter-val.warn { color:var(--accent); }
-  .live-counter-note { margin-left:auto; font-size:11px; }
-
-  .member-rate { font-size:12px; font-weight:600; color:var(--green); text-align:right; white-space:nowrap; }
-  .member-rate.na { color:var(--text-secondary); font-weight:400; }
-
-  /* ── Calculate button ── */
-  .calc-btn {
-    width:100%; background:#11a387; color:#fff; border:none; border-radius:12px;
-    padding:16px; font-family:'DM Serif Display',serif; font-size:17px; letter-spacing:.3px;
-    cursor:pointer; margin-top:4px; transition:background .2s,transform .1s,box-shadow .2s;
-    box-shadow:0 4px 14px rgba(17,163,135,.25);
-  }
-  .calc-btn:hover { background:#0d8a6f; box-shadow:0 6px 20px rgba(17,163,135,.35); }
-  .calc-btn:active { transform:scale(.99); }
-
-  /* ══════════════════════════════════════
-     RESULTS CARD — Light warm redesign
-  ══════════════════════════════════════ */
-  .results-card {
-    background: var(--res-bg);
-    color: var(--res-text);
-    border: 1.5px solid var(--res-border);
-    margin-top: 16px;
-    position: relative;
-  }
-  .results-card .section-label {
-    color: var(--text-secondary);
-    font-size: 10px;
-  }
-  .results-card .section-label::after {
-    background: var(--res-border);
-  }
-
-  /* Top summary grid */
-  .result-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .result-cell {
-    background: var(--res-surface);
-    border: 1.5px solid var(--res-cell-border);
-    border-radius: 12px;
-    padding: 18px 16px;
-    text-align: center;
-  }
-  .result-cell-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .8px;
-    text-transform: uppercase;
-    color: var(--res-sub);
-    margin-bottom: 8px;
-  }
-  .result-cell-value {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--res-text);
-    line-height: 1;
-  }
-  .result-cell-value.accent { color: var(--res-accent); }
-  .result-cell-value.green  { color: var(--res-green); }
-
-  /* Breakdown table */
-  .result-breakdown {
-    background: var(--res-breakdown-bg);
-    border-radius: 12px;
-    padding: 18px 20px;
-    border: 1px solid var(--res-cell-border);
-  }
-  .rbr {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 9px 0;
-    border-bottom: 1px solid var(--res-row-border);
-    font-size: 13px;
-  }
-  .rbr:last-child { border-bottom: none; }
-  .rbr .lbl { color: var(--res-sub); }
-  .rbr .val { font-weight: 600; color: var(--res-text); }
-  .rbr.total .lbl { color: var(--res-text); font-weight: 700; font-size: 14px; }
-  .rbr.total .val { font-size: 17px; color: var(--res-total-val); font-weight: 700; }
-
-  /* Tags */
-  .tag-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
-  .tag { background:var(--tag-bg); color:var(--text-secondary); border-radius:20px; padding:4px 12px; font-size:11px; font-weight:500; letter-spacing:.3px; }
-  .tag.warn { background:#FEF3E2; color:#A07830; border:1px solid #E0C98A; }
-  .tag.ok   { background:var(--green-light); color:var(--green); border:1px solid #B6DEC7; }
-  .tag.err  { background:var(--accent-light); color:var(--accent); border:1px solid var(--accent-mid); }
-
-  /* ── PDF Download button — styled like Calculate Premium ── */
-  .pdf-btn {
-    width: 100%;
-    background: #1A1714;
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 16px;
-    font-family: 'DM Serif Display', serif;
-    font-size: 17px;
-    letter-spacing: .3px;
-    cursor: pointer;
-    margin-top: 12px;
-    transition: background .2s, transform .1s, box-shadow .2s;
-    box-shadow: 0 4px 14px rgba(0,0,0,.18);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  .pdf-btn:hover { background: #2e2925; box-shadow: 0 6px 20px rgba(0,0,0,.28); }
-  .pdf-btn:active { transform: scale(.99); }
-  .pdf-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-  .pdf-btn.loading { opacity: .6; pointer-events: none; }
-
-  /* ── Info boxes ── */
-  .info-box { border-radius:10px; padding:12px 16px; font-size:12.5px; margin-top:14px; line-height:1.6; }
-  .info-box.gold { background:var(--gold-light); border:1px solid #E0C98A; color:var(--gold); }
-  .info-box.red  { background:var(--accent-light); border:1px solid var(--accent-mid); color:var(--accent); }
-  .info-box strong { font-weight:600; }
-
-  .hidden { display:none !important; }
-
-  @media (max-width:600px) {
-    .form-grid { grid-template-columns:1fr; }
-    .header { flex-wrap:wrap; gap:12px; }
-    .header-badge { margin-left:0; width:100%; text-align:center; }
-    .result-grid { grid-template-columns:1fr; }
-  }
+.hidden{display:none!important}
+@media(max-width:600px){.fg{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr}.hdr{flex-wrap:wrap}.hdr-badge{margin-left:0;width:100%;text-align:center}}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="logo-placeholder">
-    <img src="logo.webp" alt="Logo" style="display:none" id="logoImg">
-    <span id="logoText">LOGO</span>
-  </div>
+<div class="hdr">
+  <div style="width:46px;height:46px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(255,255,255,.3);flex-shrink:0;font-size:10px;color:rgba(255,255,255,.5);font-weight:500">LOGO</div>
   <div>
-    <div class="header-title">Tata AIG — SME Exclusive</div>
-    <div class="header-sub">Group Health Insurance · GHI Rater · Healthysure</div>
+    <div class="hdr-title">Tata AIG — SME Exclusive</div>
+    <div class="hdr-sub">Group Health Insurance · GHI Rater · Healthysure</div>
   </div>
-  <div class="header-badge">Non-Gig</div>
+  <div class="hdr-badge">Non-Gig</div>
 </div>
 
 <div class="main">
 
-  <!-- ① Company Details -->
-  <div class="card">
-    <div class="section-label">Company Details</div>
-    <div class="form-grid">
-      <div class="form-group full">
-        <label>Company Name</label>
-        <input type="text" id="companyName" placeholder="e.g. Acme Technologies Pvt. Ltd.">
+<!-- ① Company Details -->
+<div class="card">
+  <div class="sec-label">Company Details</div>
+  <div class="fg">
+    <div class="full">
+      <label>Company Name</label>
+      <div class="company-wrap">
+        <input type="text" id="companyName" placeholder="e.g. Acme Technologies Pvt. Ltd." oninput="checkDecline(this)" autocomplete="off">
+        <span class="decline-icon" id="declineIcon">⛔</span>
+        <div class="decline-panel" id="declinePanel">
+          <h4>⛔ Industry Likely on Decline List</h4>
+          <p id="declinePanelMsg"></p>
+          <div class="decline-tags" id="declineTags"></div>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Policy Type</label>
-        <select id="policyType" onchange="onPolicyTypeChange()">
-          <option value="fresh">Fresh</option>
-          <option value="renewal">Renewal</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Location</label>
-        <select id="location">
-          <option value="0">Mumbai</option>
-          <option value="0">Thane</option>
-          <option value="0">Delhi / NCR</option>
-          <option value="0">Noida</option>
-          <option value="0">Gurgaon</option>
-          <option value="0">Faridabad</option>
-          <option value="0">Ghaziabad</option>
-          <option value="0">Ahmedabad</option>
-          <option value="0">Surat</option>
-          <option value="0">Vadodara</option>
-          <option value="0">Pune</option>
-          <option value="0">Cochin</option>
-          <option value="0">Hyderabad</option>
-          <option value="0">Bengaluru</option>
-          <option value="0">Kolkata</option>
-          <option value="0">Chennai</option>
-          <option value="0.1">Other (10% discount)</option>
-        </select>
-      </div>
+      <div class="info red hidden" id="declineErr"><strong>⛔ Declined Industry:</strong> <span id="declineErrMsg"></span> — Tata AIG will not accept this case.</div>
     </div>
-    <div class="info-box gold hidden" id="renewalNote">
-      <strong>Renewal Case:</strong> Exclusive mandate is required. Loss ratio must be ≤ 75% for Tata AIG to accept the case.
-    </div>
-  </div>
-
-  <!-- ② Plan Configuration -->
-  <div class="card">
-    <div class="section-label">Plan Configuration</div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Family Definition</label>
-        <select id="familyDef" onchange="onFamilyDefChange()">
-          <option value="E">Employee Only (Self)</option>
-          <option value="ESC">Employee + Spouse + Children</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Sum Insured</label>
-        <select id="sumInsured" onchange="onSIChange()">
-          <option value="100000">₹1 Lakh</option>
-          <option value="200000">₹2 Lakh</option>
-          <option value="300000">₹3 Lakh</option>
-          <option value="500000" selected>₹5 Lakh</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Maternity Cover</label>
-        <select id="maternityCover" onchange="onMaternityChange()">
-          <option value="no">Not Applicable</option>
-          <option value="yes">Included</option>
-        </select>
-      </div>
-      <div class="form-group hidden" id="maternitySIGroup">
-        <label>Maternity Sum Insured</label>
-        <select id="maternitySI">
-          <option value="35000">₹35,000</option>
-          <option value="50000">₹50,000</option>
-          <option value="75000">₹75,000</option>
-        </select>
-      </div>
-    </div>
-    <div class="info-box gold hidden" id="matNote">
-      <strong>Maternity Note:</strong> Loading applies only to <strong>female employees &amp; female spouses aged 18–45</strong>. Minimum 10 employees required to offer maternity. Covers Normal delivery, C-section &amp; newborn expenses up to maternity SI.
-    </div>
-    <div class="info-box red hidden" id="matEOnlyNote">
-      <strong>Heads-up:</strong> Maternity is most applicable when the plan covers spouses. For Employee Only plans, confirm with Tata AIG underwriting before quoting maternity.
-    </div>
-    <div class="info-box gold hidden" id="waitingNote">
-      <strong>Waiting Periods:</strong> ≥ 10 employees → PED &amp; Specific Disease waits are <strong>Nil</strong>. &lt; 10 employees → 1-year waiting period applies to both.
-    </div>
-  </div>
-
-  <!-- ③ Commission / Mark-up -->
-  <div class="card">
-    <div class="section-label">Commission / Mark-up</div>
-    <div class="form-group">
-      <label>Select Mark-up %</label>
-      <select id="commSelect" onchange="onCommChange()">
-        <option value="0">0.0% — No mark-up (pass base rate)</option>
-        <option value="2.5">2.5%</option>
-        <option value="5">5.0%</option>
-        <option value="7.5">7.5%</option>
-        <option value="10">10.0%</option>
-        <option value="12.5">12.5%</option>
-        <option value="15" selected>15.0%</option>
-        <option value="17.5">17.5%</option>
-        <option value="20">20.0%</option>
-        <option value="22.5">22.5%</option>
-        <option value="25">25.0% — Standard Limit</option>
-        <option value="27.5">27.5% ⚠ Above Standard</option>
-        <option value="30">30.0% ⚠ Maximum (SME Exclusive Mandate)</option>
+    <div>
+      <label>Policy Type</label>
+      <select id="policyType" onchange="onPolicyTypeChange()">
+        <option value="fresh">Fresh</option>
+        <option value="renewal">Renewal</option>
       </select>
     </div>
-    <div class="info-box gold hidden" id="commWarnBox">
-      <strong>⚠ Above Standard Limit (25%):</strong> This mark-up is only permissible under the Healthysure SME Exclusive mandate. Ensure exclusive mandate is confirmed with Tata AIG before quoting.
+    <div>
+      <label>Location</label>
+      <select id="location">
+        <option value="0">Mumbai</option>
+        <option value="0">Thane</option>
+        <option value="0">Delhi / NCR</option>
+        <option value="0">Noida</option>
+        <option value="0">Gurgaon</option>
+        <option value="0">Faridabad</option>
+        <option value="0">Ghaziabad</option>
+        <option value="0">Ahmedabad</option>
+        <option value="0">Surat</option>
+        <option value="0">Vadodara</option>
+        <option value="0">Pune</option>
+        <option value="0">Cochin</option>
+        <option value="0">Hyderabad</option>
+        <option value="0">Bengaluru</option>
+        <option value="0">Kolkata</option>
+        <option value="0">Chennai</option>
+        <option value="0.1">Other (10% discount)</option>
+      </select>
     </div>
-    <p style="font-size:12px;color:var(--text-secondary);margin-top:10px;">Mark-up is applied on sub-total (base ± location discount + maternity) before 18% GST.</p>
+  </div>
+  <div class="info gold hidden" id="renewalNote"><strong>Renewal Case:</strong> Exclusive mandate required. Loss ratio must be ≤ 75%.</div>
+</div>
+
+<!-- ② Plan Configuration -->
+<div class="card">
+  <div class="sec-label">Plan Configuration</div>
+  <div class="fg">
+    <div>
+      <label>Family Definition</label>
+      <select id="familyDef" onchange="onFamilyDefChange()">
+        <option value="E">Employee Only (Self)</option>
+        <option value="ESC">Employee + Spouse + Children</option>
+      </select>
+    </div>
+    <div>
+      <label>Sum Insured</label>
+      <select id="sumInsured" onchange="onSIChange()">
+        <option value="100000">₹1 Lakh</option>
+        <option value="200000">₹2 Lakh</option>
+        <option value="300000">₹3 Lakh</option>
+        <option value="500000" selected>₹5 Lakh</option>
+      </select>
+    </div>
+    <div>
+      <label>Maternity Cover</label>
+      <select id="maternityCover" onchange="onMaternityChange()">
+        <option value="no">Not Applicable</option>
+        <option value="yes">Included</option>
+      </select>
+    </div>
+    <div id="maternitySIGroup" class="hidden">
+      <label>Maternity Sum Insured</label>
+      <select id="maternitySI">
+        <option value="35000">₹35,000</option>
+        <option value="50000">₹50,000</option>
+        <option value="75000">₹75,000</option>
+      </select>
+    </div>
+  </div>
+  <div class="info red hidden" id="matMinErr"><strong>⚠ Maternity requires min. 10 employees.</strong> Currently below threshold — loading will NOT be applied.</div>
+  <div class="info gold hidden" id="matNote"><strong>Maternity Note:</strong> Loading applies only to <strong>female employees &amp; female spouses aged 18–45</strong>. Covers normal delivery, C-section &amp; newborn up to maternity SI.</div>
+  <div class="info red hidden" id="matEOnlyNote"><strong>Heads-up:</strong> Maternity is most meaningful when the plan covers spouses. Confirm with Tata AIG underwriting for Employee Only plans.</div>
+  <div class="info gold hidden" id="waitNote"><strong>Waiting Periods:</strong> ≥ 11 employees → PED &amp; Specific Disease waits are <strong>Nil</strong>. &lt; 11 employees → 1-year waiting period applies.</div>
+</div>
+
+<!-- ③ Commission -->
+<div class="card">
+  <div class="sec-label">Commission / Mark-up</div>
+  <div>
+    <label>Select Mark-up %</label>
+    <select id="commSelect" onchange="onCommChange()">
+      <option value="0">0.0% — No mark-up (pass base rate)</option>
+      <option value="2.5">2.5%</option>
+      <option value="5">5.0%</option>
+      <option value="7.5">7.5%</option>
+      <option value="10">10.0%</option>
+      <option value="12.5">12.5%</option>
+      <option value="15" selected>15.0%</option>
+      <option value="17.5">17.5%</option>
+      <option value="20">20.0%</option>
+      <option value="22.5">22.5%</option>
+      <option value="25">25.0% — Standard Limit</option>
+      <option value="27.5">27.5% ⚠ Above Standard</option>
+      <option value="30">30.0% ⚠ Maximum (SME Exclusive Mandate)</option>
+    </select>
+  </div>
+  <div class="info gold hidden" id="commWarnBox"><strong>⚠ Above Standard Limit (25%):</strong> Only permissible under Healthysure SME Exclusive mandate. Confirm with Tata AIG before quoting.</div>
+  <p style="font-size:12px;color:var(--sub);margin-top:9px">Mark-up applied on sub-total (base ± location + maternity) before 18% GST.</p>
+</div>
+
+<!-- ④ Member Details — Aggregate Only -->
+<div class="card">
+  <div class="sec-label">Member Details — Age-Band Entry</div>
+  <p style="font-size:12.5px;color:var(--sub);margin-bottom:16px">
+    Enter <strong>count of lives</strong> in each age band. Min <strong>11 employees</strong> to bind.
+    Rates shown per-life (excl. GST) for selected SI. Employee/Spouse bands: 18–60 only.
+  </p>
+
+  <div class="agg-wrap">
+    <table class="agg-tbl" id="aggTable">
+      <thead id="aggHead"></thead>
+      <tbody id="aggBody"></tbody>
+      <tfoot id="aggFoot"></tfoot>
+    </table>
   </div>
 
-  <!-- ④ Member Details -->
-  <div class="card">
-    <div class="section-label">Member Details</div>
-    <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:16px;">
-      Min <strong>7 lives</strong> (all employees), max 100. Employee age 18–60 (renewal up to 65). Children 0–25 years, max 4 per employee. Base rate shown per life for selected SI.
+  <div class="live-bar">
+    <span class="lc-lbl">Total Lives:</span>
+    <span class="lc-val" id="livesCount">0</span>
+    <span style="color:var(--border)">|</span>
+    <span class="lc-lbl">Employees:</span>
+    <span class="lc-val" id="empCount">0</span>
+    <span class="lc-note" id="minNote"></span>
+  </div>
+
+  <div class="mat-section hidden" id="matFemSection">
+    <div class="sec-label" style="margin-bottom:12px">Maternity Loading — Female Life Counts (Age 18–45 only)</div>
+    <p style="font-size:12px;color:var(--sub);margin-bottom:14px">
+      Enter <strong>female employees</strong> and <strong>female spouses</strong> per eligible age band. Loading is per-life on top of base premium.
     </p>
-    <div class="member-table-wrap">
-      <table>
+    <div class="agg-wrap">
+      <table class="agg-tbl" id="matTable">
         <thead>
           <tr>
-            <th>#</th>
-            <th style="min-width:100px">Name</th>
-            <th style="width:65px">Age</th>
-            <th style="min-width:105px">Relationship</th>
-            <th style="min-width:85px">Gender</th>
-            <th style="min-width:88px">Age Band</th>
-            <th style="min-width:78px;text-align:right">Base Rate</th>
-            <th style="width:30px"></th>
+            <th class="left-h">Category</th>
+            <th>[18–25]<span class="col-rate" id="mhr1825"></span></th>
+            <th>[26–35]<span class="col-rate" id="mhr2635"></span></th>
+            <th>[36–45]<span class="col-rate" id="mhr3645"></span></th>
+            <th>Total</th>
           </tr>
         </thead>
-        <tbody id="memberBody"></tbody>
+        <tbody id="matBody"></tbody>
       </table>
-    </div>
-    <button class="add-btn" onclick="addMember()">+ Add Member</button>
-
-    <div class="live-counter">
-      <span class="live-counter-label">Total Lives:</span>
-      <span class="live-counter-val" id="livesCount">0</span>
-      <span style="color:var(--border)">|</span>
-      <span class="live-counter-label">Employees:</span>
-      <span class="live-counter-val" id="empCount">0</span>
-      <span class="live-counter-note" id="minLivesNote"></span>
-    </div>
-
-    <div class="info-box red hidden" id="memberErr">
-      At least <strong>7 employee</strong> lives are required to bind this policy with Tata AIG.
     </div>
   </div>
 
-  <!-- Calculate -->
-  <button class="calc-btn" onclick="calculate()">▶&nbsp;&nbsp;Calculate Premium</button>
+  <div class="info red hidden" id="memberErr">At least <strong>11 employee</strong> lives are required to bind this policy with Tata AIG.</div>
+</div>
 
-  <!-- Results -->
-  <div id="pdfContent">
+<!-- Calculate -->
+<button class="calc-btn" onclick="calculate()">▶&nbsp;&nbsp;Calculate Premium</button>
+
+<!-- Results -->
+<div id="pdfContent">
   <div class="card results-card hidden" id="resultsCard">
-    <div class="section-label">
-      Premium Summary —
-      <span id="rCompany" style="font-style:italic;font-weight:300;text-transform:none;letter-spacing:0;margin-left:4px">—</span>
+    <div class="sec-label">Premium Summary — <span id="rCompany" style="font-style:italic;font-weight:300;text-transform:none;letter-spacing:0;margin-left:4px">—</span></div>
+    <div class="result-grid">
+      <div class="result-cell"><div class="result-cell-label">Total Lives Rated</div><div class="result-cell-value" id="rLives">—</div></div>
+      <div class="result-cell"><div class="result-cell-label">Net Premium (excl. GST)</div><div class="result-cell-value accent" id="rNet">—</div></div>
+      <div class="result-cell"><div class="result-cell-label">Gross Premium (incl. GST)</div><div class="result-cell-value green" id="rGross">—</div></div>
     </div>
-      <div class="result-grid">
-        <div class="result-cell">
-          <div class="result-cell-label">Total Lives Rated</div>
-          <div class="result-cell-value" id="rLives">—</div>
-        </div>
-        <div class="result-cell">
-          <div class="result-cell-label">Net Premium (excl. GST)</div>
-          <div class="result-cell-value accent" id="rNet">—</div>
-        </div>
-        <div class="result-cell">
-          <div class="result-cell-label">Gross Premium (incl. GST)</div>
-          <div class="result-cell-value green" id="rGross">—</div>
-        </div>
-      </div>
-
-      <div class="result-breakdown">
-        <div class="rbr">
-          <span class="lbl">Base Premium (all rated lives, excl. GST &amp; mark-up)</span>
-          <span class="val" id="rBase">—</span>
-        </div>
-        <div class="rbr" id="rLocRow">
-          <span class="lbl">Location Discount (10%)</span>
-          <span class="val" id="rLoc">—</span>
-        </div>
-        <div class="rbr" id="rMatRow">
-          <span class="lbl">Maternity Loading (eligible female lives)</span>
-          <span class="val" id="rMat">—</span>
-        </div>
-        <div class="rbr">
-          <span class="lbl">Sub-total (before mark-up)</span>
-          <span class="val" id="rSubBeforeComm">—</span>
-        </div>
-        <div class="rbr">
-          <span class="lbl">Mark-up / Commission</span>
-          <span class="val" id="rComm">—</span>
-        </div>
-        <div class="rbr">
-          <span class="lbl">Net Premium (excl. GST)</span>
-          <span class="val" id="rNetSub">—</span>
-        </div>
-        <div class="rbr">
-          <span class="lbl">GST @ 18%</span>
-          <span class="val" id="rGST">—</span>
-        </div>
-        <div class="rbr total">
-          <span class="lbl">Total Gross Premium</span>
-          <span class="val" id="rGrossTotal">—</span>
-        </div>
-      </div>
-
-      <div class="tag-list" id="tagList"></div>
+    <div class="result-breakdown">
+      <div class="rbr"><span class="lbl">Base Premium (all rated lives, excl. GST &amp; mark-up)</span><span class="val" id="rBase">—</span></div>
+      <div class="rbr" id="rLocRow"><span class="lbl">Location Discount (10%)</span><span class="val" id="rLoc">—</span></div>
+      <div class="rbr" id="rMatRow"><span class="lbl">Maternity Loading (eligible female lives)</span><span class="val" id="rMat">—</span></div>
+      <div class="rbr"><span class="lbl">Sub-total (before mark-up)</span><span class="val" id="rSubBeforeComm">—</span></div>
+      <div class="rbr"><span class="lbl">Mark-up / Commission</span><span class="val" id="rComm">—</span></div>
+      <div class="rbr"><span class="lbl">Net Premium (excl. GST)</span><span class="val" id="rNetSub">—</span></div>
+      <div class="rbr"><span class="lbl">GST @ 18%</span><span class="val" id="rGST">—</span></div>
+      <div class="rbr total"><span class="lbl">Total Gross Premium</span><span class="val" id="rGrossTotal">—</span></div>
     </div>
-  </div><!-- /pdfContent -->
+    <div class="tag-list" id="tagList"></div>
+  </div>
+</div>
 
-  <!-- Download PDF — full-width like Calculate Premium -->
-  <button class="pdf-btn hidden" id="pdfBtn" onclick="downloadPDF()">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Download Premium Summary (PDF)
-  </button>
+<button class="pdf-btn hidden" id="pdfBtn" onclick="downloadPDF()">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  Download Premium Summary (PDF)
+</button>
 
-</div><!-- /main -->
+</div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-// LOGO HANDLING
-// ═══════════════════════════════════════════════════════════
-window.addEventListener('load', function() {
-  const img = document.getElementById('logoImg');
-  const txt = document.getElementById('logoText');
-  img.onerror = function() { img.style.display='none'; txt.style.display='block'; };
-  img.onload  = function() { txt.style.display='none'; img.style.display='block'; };
+const RATES_E = {
+  '[18-25]':{ 100000:1182,  200000:1633,  300000:2100,  500000:2969  },
+  '[26-35]':{ 100000:1580,  200000:2178,  300000:2794,  500000:3944  },
+  '[36-45]':{ 100000:2184,  200000:3004,  300000:3846,  500000:5424  },
+  '[46-50]':{ 100000:2841,  200000:3903,  300000:4992,  500000:7034  },
+  '[51-55]':{ 100000:3602,  200000:4946,  300000:6319,  500000:8900  },
+  '[56-60]':{ 100000:4854,  200000:6660,  300000:8503,  500000:11970 },
+};
+
+const RATES_ESC = {
+  '[0-5]':  { 100000:1878,  200000:2583,  300000:3310,  500000:4666  },
+  '[6-17]': { 100000:996,   200000:1377,  300000:1775,  500000:2510  },
+  '[18-25]':{ 100000:1418,  200000:1960,  300000:2520,  500000:3563  },
+  '[26-35]':{ 100000:1896,  200000:2614,  300000:3353,  500000:4733  },
+  '[36-45]':{ 100000:2621,  200000:3605,  300000:4615,  500000:6509  },
+  '[46-50]':{ 100000:3409,  200000:4684,  300000:5990,  500000:8441  },
+  '[51-55]':{ 100000:4322,  200000:5935,  300000:7583,  500000:10680 },
+  '[56-60]':{ 100000:5825,  200000:7992,  300000:10204, 500000:14364 },
+};
+
+const MAT_LOADING = {
+  '[18-25]':{ 35000:3326, 50000:3779, 75000:5913 },
+  '[26-35]':{ 35000:3354, 50000:4091, 75000:6542 },
+  '[36-45]':{ 35000:735,  50000:845,  75000:1358  },
+};
+
+const EMP_SP_BANDS = ['[18-25]','[26-35]','[36-45]','[46-50]','[51-55]','[56-60]'];
+const CHILD_BANDS  = ['[0-5]','[6-17]','[18-25]','[26-35]','[36-45]','[46-50]','[51-55]','[56-60]'];
+const MAT_BANDS    = ['[18-25]','[26-35]','[36-45]'];
+
+const DECLINE_LIST = [
+  { keys:['armed','police','crpf','army','navy','airforce'],              label:'Armed Professionals (Police/CRPF/Army/Navy/Airforce)' },
+  { keys:['circus','stunt'],                                              label:'Circus Workers and Stunt Artists' },
+  { keys:['racing','horseback'],                                          label:'Racing on wheels or horseback' },
+  { keys:['healthcare worker','hospital','clinic','diagnostic','doctor','nurse'],  label:'Healthcare Workers / Hospitals / Diagnostic Centers' },
+  { keys:['hunter','hunting'],                                            label:'Hunters' },
+  { keys:['hazard worker','industrial worker'],                           label:'Industrial Workers (Hazard)' },
+  { keys:['journalist','media house','press club'],                       label:'Journalist / Media' },
+  { keys:['political associat','political party'],                        label:'Political Association' },
+  { keys:['mountaineer','mountaineering'],                                label:'Mountaineers' },
+  { keys:['politician'],                                                  label:'Politicians' },
+  { keys:['professional athlete','professional sport'],                   label:'Professional Athletes' },
+  { keys:['river raft','rafting'],                                        label:'River Rafting' },
+  { keys:['underground mining','underground mine'],                       label:'Underground Mining' },
+  { keys:['underwater extraction','underwater construction'],             label:'Underwater extraction or construction' },
+  { keys:['oil explor','gas explor','petroleum refin','oil refin'],       label:'Oil/Gas exploration, production, or refining' },
+  { keys:['chemical industr','chemical company','chemicals ltd'],         label:'Chemical Industries' },
+  { keys:['ammunition','explosive','firework','toxic substance'],         label:'Ammunition / Explosives / Fireworks / Toxic substances' },
+  { keys:['airline crew','seafaring','sea faring','sailor'],              label:'Airline or seafaring personnel' },
+  { keys:['security force'],                                              label:'Security Forces' },
+  { keys:['association of doctors','association of hospitals','diagnostic center assoc'], label:'Associations of Doctors/Hospitals/Diagnostics' },
+  { keys:['association of lawyers','lawyers association','bar council'],  label:'Lawyers / Association of Lawyers' },
+  { keys:['religious trust','charity trust','charitable trust'],          label:'Religious Trust / Charitable Institution' },
+  { keys:['high tension','electrical installation'],                      label:'Electrical installation with high tension supply' },
+];
+
+const MIN_EMP = 11;
+
+function checkDecline(inp) {
+  const val = inp.value.toLowerCase().trim();
+  const icon = document.getElementById('declineIcon');
+  const panel = document.getElementById('declinePanel');
+  const err = document.getElementById('declineErr');
+  const tagsEl = document.getElementById('declineTags');
+  const msgEl = document.getElementById('declinePanelMsg');
+  const errMsgEl = document.getElementById('declineErrMsg');
+
+  if (!val || val.length < 3) {
+    icon.style.display='none'; panel.classList.remove('show'); err.classList.add('hidden'); return;
+  }
+  const hits = DECLINE_LIST.filter(d => d.keys.some(k => val.includes(k))).map(d => d.label);
+  if (hits.length) {
+    icon.style.display='block';
+    msgEl.textContent = 'Matches: ' + hits.join('; ') + '. Tata AIG does not accept cases from these industries.';
+    tagsEl.innerHTML = hits.map(h=>`<span class="decline-tag">⛔ ${h}</span>`).join('');
+    panel.classList.add('show');
+    err.classList.remove('hidden');
+    errMsgEl.textContent = hits.join('; ');
+  } else {
+    icon.style.display='none'; panel.classList.remove('show'); err.classList.add('hidden');
+  }
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.company-wrap')) document.getElementById('declinePanel').classList.remove('show');
 });
 
-// ═══════════════════════════════════════════════════════════
-// RATE TABLES
-// ═══════════════════════════════════════════════════════════
-const RATES_E = {
-  '[18-25]': { 100000:1182,  200000:1633,  300000:2100,  500000:2969  },
-  '[26-35]': { 100000:1580,  200000:2178,  300000:2794,  500000:3944  },
-  '[36-45]': { 100000:2184,  200000:3004,  300000:3846,  500000:5424  },
-  '[46-50]': { 100000:2841,  200000:3903,  300000:4992,  500000:7034  },
-  '[51-55]': { 100000:3602,  200000:4946,  300000:6319,  500000:8900  },
-  '[56-60]': { 100000:4854,  200000:6660,  300000:8503,  500000:11970 },
-};
-const RATES_ESC = {
-  '[0-5]':   { 100000:1878,  200000:2583,  300000:3310,  500000:4666  },
-  '[6-17]':  { 100000:996,   200000:1377,  300000:1775,  500000:2510  },
-  '[18-25]': { 100000:1418,  200000:1960,  300000:2520,  500000:3563  },
-  '[26-35]': { 100000:1896,  200000:2614,  300000:3353,  500000:4733  },
-  '[36-45]': { 100000:2621,  200000:3605,  300000:4615,  500000:6509  },
-  '[46-50]': { 100000:3409,  200000:4684,  300000:5990,  500000:8441  },
-  '[51-55]': { 100000:4322,  200000:5935,  300000:7583,  500000:10680 },
-  '[56-60]': { 100000:5825,  200000:7992,  300000:10204, 500000:14364 },
-};
-const MATERNITY_LOADING = {
-  '[18-25]': { 35000:3326, 50000:3779, 75000:5913 },
-  '[26-35]': { 35000:3354, 50000:4091, 75000:6542 },
-  '[36-45]': { 35000:735,  50000:845,  75000:1358  },
-};
+function buildAggTable() {
+  const fd = document.getElementById('familyDef').value;
+  const si = parseInt(document.getElementById('sumInsured').value);
 
-function getAgeBandE(age) {
-  if (age>=18&&age<=25) return '[18-25]';
-  if (age>=26&&age<=35) return '[26-35]';
-  if (age>=36&&age<=45) return '[36-45]';
-  if (age>=46&&age<=50) return '[46-50]';
-  if (age>=51&&age<=55) return '[51-55]';
-  if (age>=56&&age<=60) return '[56-60]';
-  return null;
-}
-function getAgeBandESC(age) {
-  if (age>=0 &&age<=5 ) return '[0-5]';
-  if (age>=6 &&age<=17) return '[6-17]';
-  if (age>=18&&age<=25) return '[18-25]';
-  if (age>=26&&age<=35) return '[26-35]';
-  if (age>=36&&age<=45) return '[36-45]';
-  if (age>=46&&age<=50) return '[46-50]';
-  if (age>=51&&age<=55) return '[51-55]';
-  if (age>=56&&age<=60) return '[56-60]';
-  return null;
-}
-function getMatBand(age) {
-  if (age>=18&&age<=25) return '[18-25]';
-  if (age>=26&&age<=35) return '[26-35]';
-  if (age>=36&&age<=45) return '[36-45]';
-  return null;
-}
-function resolveRate(fd, age, si) {
-  const rates = fd==='E' ? RATES_E : RATES_ESC;
-  const band  = fd==='E' ? getAgeBandE(age) : getAgeBandESC(age);
-  if (!band) return null;
-  const rate = rates[band]&&rates[band][si];
-  if (rate==null) return null;
-  return { band, rate };
+  const rows = fd === 'E'
+    ? [{ label:'Employee', bands: EMP_SP_BANDS, rateTable: RATES_E }]
+    : [
+        { label:'Employee', bands: EMP_SP_BANDS, rateTable: RATES_ESC },
+        { label:'Spouse',   bands: EMP_SP_BANDS, rateTable: RATES_ESC },
+        { label:'Children', bands: CHILD_BANDS,  rateTable: RATES_ESC },
+      ];
+
+  const allBands = fd === 'E' ? EMP_SP_BANDS : CHILD_BANDS;
+
+  const thead = document.getElementById('aggHead');
+  thead.innerHTML = `<tr>
+    <th class="left-h">Category</th>
+    ${allBands.map(b => {
+      const firstRow = rows.find(r => r.bands.includes(b));
+      const rate = firstRow && firstRow.rateTable[b] && firstRow.rateTable[b][si];
+      return `<th>${b}<span class="col-rate">${rate ? '₹'+rate.toLocaleString('en-IN') : '—'}</span></th>`;
+    }).join('')}
+    <th>Total</th>
+  </tr>`;
+
+  const tbody = document.getElementById('aggBody');
+  tbody.innerHTML = '';
+  rows.forEach(row => {
+    const rowKey = row.label.toLowerCase();
+    const tr = document.createElement('tr');
+    let cells = `<td class="row-label">${row.label}</td>`;
+    allBands.forEach(b => {
+      const isApplicable = row.bands.includes(b);
+      if (isApplicable) {
+        const rate = row.rateTable[b] && row.rateTable[b][si];
+        cells += `<td><input type="number" min="0" max="500" placeholder="0"
+          data-row="${rowKey}" data-band="${b}" data-rate="${rate||0}"
+          oninput="onAggInput()"></td>`;
+      } else {
+        cells += `<td><input type="number" class="disabled-cell" disabled placeholder="—" tabindex="-1"></td>`;
+      }
+    });
+    cells += `<td id="rowtotal_${rowKey}" style="font-weight:700;color:var(--teal)">0</td>`;
+    tr.innerHTML = cells;
+    tbody.appendChild(tr);
+  });
+
+  const tfoot = document.getElementById('aggFoot');
+  tfoot.innerHTML = `<tr class="agg-foot-row">
+    <td class="row-label">Total Lives</td>
+    ${allBands.map(b => `<td id="coltotal_${b.replace(/[\[\]-]/g,'_')}" style="color:var(--teal)">0</td>`).join('')}
+    <td id="grandtotal" style="color:var(--teal);font-size:15px">0</td>
+  </tr>`;
+
+  onAggInput();
 }
 
-// ═══════════════════════════════════════════════════════════
-// MEMBER TABLE
-// ═══════════════════════════════════════════════════════════
-let memberCount = 0;
-function addMember(opts={}) {
-  memberCount++;
-  const id=memberCount;
-  const tbody=document.getElementById('memberBody');
-  const tr=document.createElement('tr');
-  tr.id='row_'+id;
-  const defaultRel   =opts.rel   ||'Employee';
-  const defaultAge   =(opts.age!==undefined)?opts.age:'';
-  const defaultGender=opts.gender||'Male';
-  const defaultName  =opts.name  ||'';
-  const relOpts=['Employee','Spouse','Child'].map(r=>`<option value="${r}"${r===defaultRel?' selected':''}>${r}</option>`).join('');
-  const genOpts=['Male','Female'].map(g=>`<option value="${g}"${g===defaultGender?' selected':''}>${g}</option>`).join('');
-  tr.innerHTML=`
-    <td>${id}</td>
-    <td><input type="text" placeholder="Name (optional)" value="${defaultName}" style="min-width:90px"></td>
-    <td><input type="number" min="0" max="100" placeholder="Age" value="${defaultAge}" style="width:60px" oninput="onAgeInput(this,${id})"></td>
-    <td><select onchange="updateLiveCounter()">${relOpts}</select></td>
-    <td><select onchange="updateLiveCounter()">${genOpts}</select></td>
-    <td id="band_${id}"><span class="band-pill empty">—</span></td>
-    <td class="member-rate na" id="rate_${id}">—</td>
-    <td><button class="del-btn" onclick="deleteMember(${id})" title="Remove">✕</button></td>
-  `;
-  tbody.appendChild(tr);
-  if (defaultAge!=='') { const inp=tr.querySelector('input[type=number]'); refreshRowDisplay(inp,id); }
-  updateLiveCounter();
-}
-function deleteMember(id) { const el=document.getElementById('row_'+id); if(el){el.remove();updateLiveCounter();} }
-function onAgeInput(input,id) { refreshRowDisplay(input,id); updateLiveCounter(); }
-function refreshRowDisplay(input,id) {
-  const ageRaw=input.value.trim(); const age=parseInt(ageRaw);
-  const fd=document.getElementById('familyDef').value;
-  const si=parseInt(document.getElementById('sumInsured').value);
-  const bandCell=document.getElementById('band_'+id);
-  const rateCell=document.getElementById('rate_'+id);
-  if(ageRaw===''||isNaN(age)){bandCell.innerHTML='<span class="band-pill empty">—</span>';rateCell.textContent='—';rateCell.className='member-rate na';return;}
-  const result=resolveRate(fd,age,si);
-  if(result){bandCell.innerHTML=`<span class="band-pill">${result.band}</span>`;rateCell.textContent='₹'+result.rate.toLocaleString('en-IN');rateCell.className='member-rate';}
-  else{bandCell.innerHTML='<span class="band-pill out">Out of range</span>';rateCell.textContent='—';rateCell.className='member-rate na';}
-}
-function refreshAllRows() { document.querySelectorAll('#memberBody tr').forEach(row=>{const id=parseInt(row.id.replace('row_',''));const inp=row.querySelector('input[type=number]');if(inp)refreshRowDisplay(inp,id);}); }
-function updateLiveCounter() {
-  const rows=document.querySelectorAll('#memberBody tr');
-  let empCount=0;
-  rows.forEach(row=>{const sel=row.querySelector('td:nth-child(4) select');if(sel&&sel.value==='Employee')empCount++;});
-  const total=rows.length;
-  document.getElementById('livesCount').textContent=total;
-  document.getElementById('livesCount').className='live-counter-val '+(total>=7?'ok':'warn');
-  document.getElementById('empCount').textContent=empCount;
-  document.getElementById('empCount').className='live-counter-val '+(empCount>=7?'ok':'warn');
-  const noteEl=document.getElementById('minLivesNote');
-  if(empCount<7){noteEl.textContent=`Need ${7-empCount} more employee(s)`;noteEl.style.color='var(--accent)';}
-  else{noteEl.textContent='✓ Minimum met';noteEl.style.color='var(--green)';}
+function onAggInput() {
+  const fd = document.getElementById('familyDef').value;
+  const allBands = fd === 'E' ? EMP_SP_BANDS : CHILD_BANDS;
+
+  ['employee','spouse','children'].forEach(rowKey => {
+    const inputs = document.querySelectorAll(`#aggBody input[data-row="${rowKey}"]`);
+    if (!inputs.length) return;
+    let sum = 0;
+    inputs.forEach(i => sum += parseInt(i.value)||0);
+    const el = document.getElementById('rowtotal_' + rowKey);
+    if (el) el.textContent = sum;
+  });
+
+  let grand = 0;
+  allBands.forEach(b => {
+    const inputs = document.querySelectorAll(`#aggBody input[data-band="${b}"]:not(:disabled)`);
+    let sum = 0; inputs.forEach(i => sum += parseInt(i.value)||0);
+    grand += sum;
+    const el = document.getElementById('coltotal_' + b.replace(/[\[\]-]/g,'_'));
+    if (el) el.textContent = sum;
+  });
+  const gEl = document.getElementById('grandtotal');
+  if (gEl) gEl.textContent = grand;
+
+  let empCount = 0;
+  document.querySelectorAll('#aggBody input[data-row="employee"]').forEach(i => empCount += parseInt(i.value)||0);
+
+  document.getElementById('livesCount').textContent = grand;
+  document.getElementById('livesCount').className = 'lc-val ' + (grand >= MIN_EMP ? 'ok' : 'warn');
+  document.getElementById('empCount').textContent = empCount;
+  document.getElementById('empCount').className = 'lc-val ' + (empCount >= MIN_EMP ? 'ok' : 'warn');
+  const noteEl = document.getElementById('minNote');
+  if (empCount < MIN_EMP) { noteEl.textContent = `Need ${MIN_EMP - empCount} more employee(s)`; noteEl.style.color='var(--accent)'; }
+  else { noteEl.textContent = '✓ Minimum met'; noteEl.style.color = 'var(--green)'; }
+
+  checkMatMinLives(empCount);
 }
 
-// ═══════════════════════════════════════════════════════════
-// UI EVENT HANDLERS
-// ═══════════════════════════════════════════════════════════
-function onPolicyTypeChange() { const isRenewal=document.getElementById('policyType').value==='renewal'; document.getElementById('renewalNote').classList.toggle('hidden',!isRenewal); }
-function onFamilyDefChange() { refreshAllRows(); onMaternityChange(); }
-function onSIChange() { refreshAllRows(); }
+function checkMatMinLives(empCount) {
+  if (empCount === undefined) {
+    empCount = 0;
+    document.querySelectorAll('#aggBody input[data-row="employee"]').forEach(i => empCount += parseInt(i.value)||0);
+  }
+  const hasMat = document.getElementById('maternityCover').value === 'yes';
+  const minErr = document.getElementById('matMinErr');
+  const femSection = document.getElementById('matFemSection');
+  if (hasMat) {
+    if (empCount < 10) {
+      minErr.innerHTML = `<strong>⚠ Maternity requires min. 10 employees.</strong> Currently <strong>${empCount} employee(s)</strong> — loading will NOT be applied.`;
+      minErr.classList.remove('hidden');
+      femSection.classList.add('hidden');
+    } else {
+      minErr.classList.add('hidden');
+      femSection.classList.remove('hidden');
+    }
+  } else {
+    minErr.classList.add('hidden');
+    femSection.classList.add('hidden');
+  }
+}
+
+function buildMatTable() {
+  const matSI = parseInt(document.getElementById('maternitySI').value) || 50000;
+  ['[18-25]','[26-35]','[36-45]'].forEach((b,i) => {
+    const ids = ['mhr1825','mhr2635','mhr3645'];
+    const el = document.getElementById(ids[i]);
+    if (el) el.textContent = MAT_LOADING[b] && MAT_LOADING[b][matSI] ? '₹'+Math.round(MAT_LOADING[b][matSI]).toLocaleString('en-IN') : '—';
+  });
+
+  const tbody = document.getElementById('matBody');
+  tbody.innerHTML = ['Female Employees','Female Spouses'].map(label => {
+    const rowKey = label.replace(/ /g,'_').toLowerCase();
+    return `<tr>
+      <td class="row-label">${label}</td>
+      ${MAT_BANDS.map(b => `<td><input type="number" min="0" max="500" placeholder="0"
+        data-matrow="${rowKey}" data-matband="${b}" oninput="onMatInput()"></td>`).join('')}
+      <td id="mattotal_${rowKey}" style="font-weight:700;color:var(--accent)">0</td>
+    </tr>`;
+  }).join('');
+}
+
+function onMatInput() {
+  ['female_employees','female_spouses'].forEach(rowKey => {
+    const inputs = document.querySelectorAll(`#matBody input[data-matrow="${rowKey}"]`);
+    let sum = 0; inputs.forEach(i => sum += parseInt(i.value)||0);
+    const el = document.getElementById('mattotal_' + rowKey);
+    if (el) el.textContent = sum;
+  });
+}
+
+function onPolicyTypeChange() {
+  document.getElementById('renewalNote').classList.toggle('hidden', document.getElementById('policyType').value !== 'renewal');
+}
+function onFamilyDefChange() { buildAggTable(); onMaternityChange(); }
+function onSIChange() { buildAggTable(); buildMatTable(); }
 function onMaternityChange() {
-  const hasMat=document.getElementById('maternityCover').value==='yes';
-  const fd=document.getElementById('familyDef').value;
-  document.getElementById('maternitySIGroup').classList.toggle('hidden',!hasMat);
-  document.getElementById('matNote').classList.toggle('hidden',!hasMat);
-  document.getElementById('matEOnlyNote').classList.toggle('hidden',!(hasMat&&fd==='E'));
-  document.getElementById('waitingNote').classList.toggle('hidden',!hasMat);
+  const hasMat = document.getElementById('maternityCover').value === 'yes';
+  const fd = document.getElementById('familyDef').value;
+  document.getElementById('maternitySIGroup').classList.toggle('hidden', !hasMat);
+  document.getElementById('matNote').classList.toggle('hidden', !hasMat);
+  document.getElementById('matEOnlyNote').classList.toggle('hidden', !(hasMat && fd === 'E'));
+  document.getElementById('waitNote').classList.toggle('hidden', !hasMat);
+  if (hasMat) { buildMatTable(); }
+  checkMatMinLives();
 }
 function onCommChange() {
-  const val=parseFloat(document.getElementById('commSelect').value);
-  document.getElementById('commWarnBox').classList.toggle('hidden',val<=25);
-  const sel=document.getElementById('commSelect');
-  if(val>25){sel.style.color='var(--gold)';sel.style.borderColor='#E0C98A';sel.style.backgroundColor='var(--gold-light)';}
-  else{sel.style.color='var(--accent)';sel.style.borderColor='var(--accent-mid)';sel.style.backgroundColor='var(--accent-light)';}
+  const val = parseFloat(document.getElementById('commSelect').value);
+  document.getElementById('commWarnBox').classList.toggle('hidden', val <= 25);
+  const sel = document.getElementById('commSelect');
+  if (val > 25) { sel.style.color='var(--gold)'; sel.style.borderColor='#E0C98A'; sel.style.backgroundColor='var(--gold-light)'; }
+  else { sel.style.color='var(--accent)'; sel.style.borderColor='var(--accent-mid)'; sel.style.backgroundColor='var(--accent-light)'; }
 }
 
-// ═══════════════════════════════════════════════════════════
-// CALCULATE
-// ═══════════════════════════════════════════════════════════
-function fmt(n) { return '₹'+Math.round(n).toLocaleString('en-IN'); }
+function fmt(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+
 function calculate() {
   document.getElementById('memberErr').classList.add('hidden');
-  const fd=document.getElementById('familyDef').value;
-  const si=parseInt(document.getElementById('sumInsured').value);
-  const commPct=parseFloat(document.getElementById('commSelect').value)/100;
-  const matCover=document.getElementById('maternityCover').value==='yes';
-  const matSI=matCover?parseInt(document.getElementById('maternitySI').value):0;
-  const locSel=document.getElementById('location');
-  const locDisc=parseFloat(locSel.options[locSel.selectedIndex].value)||0;
-  const rows=document.querySelectorAll('#memberBody tr');
-  let empCount=0,ratedLives=0,totalBase=0,totalMat=0,skippedCount=0;
-  rows.forEach(row=>{
-    const tds=row.querySelectorAll('td');
-    const ageVal=tds[2].querySelector('input').value.trim();
-    const age=parseInt(ageVal);
-    const rel=tds[3].querySelector('select').value;
-    const gender=tds[4].querySelector('select').value;
-    if(rel==='Employee')empCount++;
-    if(ageVal===''||isNaN(age)){skippedCount++;return;}
-    const result=resolveRate(fd,age,si);
-    if(!result){skippedCount++;return;}
-    totalBase+=result.rate; ratedLives++;
-    if(matCover&&gender==='Female'&&(rel==='Employee'||rel==='Spouse')){
-      const mb=getMatBand(age);
-      if(mb&&MATERNITY_LOADING[mb]&&MATERNITY_LOADING[mb][matSI])totalMat+=MATERNITY_LOADING[mb][matSI];
-    }
+
+  const fd     = document.getElementById('familyDef').value;
+  const si     = parseInt(document.getElementById('sumInsured').value);
+  const commPct = parseFloat(document.getElementById('commSelect').value) / 100;
+  const matCover = document.getElementById('maternityCover').value === 'yes';
+  const matSI  = matCover ? parseInt(document.getElementById('maternitySI').value) : 0;
+  const locSel = document.getElementById('location');
+  const locDisc = parseFloat(locSel.options[locSel.selectedIndex].value) || 0;
+
+  let empCount = 0;
+  document.querySelectorAll('#aggBody input[data-row="employee"]').forEach(i => empCount += parseInt(i.value)||0);
+
+  if (empCount < MIN_EMP) {
+    document.getElementById('memberErr').classList.remove('hidden');
+    document.getElementById('memberErr').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  let totalBase = 0, ratedLives = 0;
+  const rateTable = fd === 'E' ? RATES_E : RATES_ESC;
+  document.querySelectorAll('#aggBody input[data-band]:not(:disabled)').forEach(inp => {
+    const count = parseInt(inp.value) || 0;
+    if (!count) return;
+    const band = inp.dataset.band;
+    const rate = rateTable[band] && rateTable[band][si];
+    if (rate) { totalBase += rate * count; ratedLives += count; }
   });
-  if(empCount<7){document.getElementById('memberErr').classList.remove('hidden');document.getElementById('memberErr').scrollIntoView({behavior:'smooth',block:'center'});return;}
 
-  const locAmt=totalBase*locDisc;
-  const afterLoc=totalBase-locAmt;
-  const afterMat=afterLoc+totalMat;
-  const commAmt=afterMat*commPct;
-  const netPremium=afterMat+commAmt;
-  const gst=netPremium*0.18;
-  const grossPremium=netPremium+gst;
+  let totalMat = 0;
+  if (matCover && empCount >= 10) {
+    document.querySelectorAll('#matBody input[data-matband]').forEach(inp => {
+      const count = parseInt(inp.value) || 0;
+      if (!count) return;
+      const band = inp.dataset.matband;
+      const loading = MAT_LOADING[band] && MAT_LOADING[band][matSI];
+      if (loading) totalMat += Math.round(loading) * count;
+    });
+  }
 
-  const company=document.getElementById('companyName').value.trim()||'Unnamed Company';
-  document.getElementById('rCompany').textContent=company;
-  document.getElementById('rLives').textContent=ratedLives;
-  document.getElementById('rNet').textContent=fmt(netPremium);
-  document.getElementById('rGross').textContent=fmt(grossPremium);
-  document.getElementById('rBase').textContent=fmt(totalBase);
+  const locAmt     = totalBase * locDisc;
+  const afterLoc   = totalBase - locAmt;
+  const afterMat   = afterLoc + totalMat;
+  const commAmt    = afterMat * commPct;
+  const netPremium = afterMat + commAmt;
+  const gst        = netPremium * 0.18;
+  const grossPrem  = netPremium + gst;
 
-  if(locDisc>0){document.getElementById('rLoc').textContent=`− ${fmt(locAmt)} (${(locDisc*100).toFixed(0)}%)`;document.getElementById('rLocRow').style.display='';}
-  else document.getElementById('rLocRow').style.display='none';
+  const company = document.getElementById('companyName').value.trim() || 'Unnamed Company';
+  document.getElementById('rCompany').textContent = company;
+  document.getElementById('rLives').textContent   = ratedLives;
+  document.getElementById('rNet').textContent     = fmt(netPremium);
+  document.getElementById('rGross').textContent   = fmt(grossPrem);
+  document.getElementById('rBase').textContent    = fmt(totalBase);
 
-  if(matCover&&totalMat>0){document.getElementById('rMat').textContent=`+ ${fmt(totalMat)}`;document.getElementById('rMatRow').style.display='';}
-  else document.getElementById('rMatRow').style.display='none';
+  if (locDisc > 0) {
+    document.getElementById('rLoc').textContent = `− ${fmt(locAmt)} (${(locDisc*100).toFixed(0)}%)`;
+    document.getElementById('rLocRow').style.display = '';
+  } else {
+    document.getElementById('rLocRow').style.display = 'none';
+  }
 
-  document.getElementById('rSubBeforeComm').textContent=fmt(afterMat);
-  document.getElementById('rComm').textContent=commPct>0?`+ ${fmt(commAmt)} (${(commPct*100).toFixed(1)}%)`:'Nil (0%)';
-  document.getElementById('rNetSub').textContent=fmt(netPremium);
-  document.getElementById('rGST').textContent=fmt(gst);
-  document.getElementById('rGrossTotal').textContent=fmt(grossPremium);
+  if (matCover && totalMat > 0) {
+    document.getElementById('rMat').textContent = `+ ${fmt(totalMat)}`;
+    document.getElementById('rMatRow').style.display = '';
+  } else {
+    document.getElementById('rMatRow').style.display = 'none';
+  }
 
-  const tags=document.getElementById('tagList');
-  tags.innerHTML='';
-  const isRenewal=document.getElementById('policyType').value==='renewal';
-  const locLabel=locSel.options[locSel.selectedIndex].text;
-  const tagData=[
-    {text:fd==='E'?'Employee Only':'E + Spouse + Children',cls:''},
-    {text:`SI ₹${(si/100000).toFixed(0)} Lakh`,cls:''},
-    {text:`${ratedLives} Lives Rated`,cls:ratedLives>=7?'ok':'warn'},
-    {text:`${empCount} Employees`,cls:empCount>=10?'ok':''},
-    {text:matCover?`Maternity ₹${(matSI/1000).toFixed(0)}K`:'No Maternity',cls:matCover?'ok':''},
-    {text:isRenewal?'Renewal — Exclusive Mandate Required':'Fresh Policy',cls:isRenewal?'warn':'ok'},
-    {text:commPct>0?`Mark-up ${(commPct*100).toFixed(1)}%`:'No Mark-up',cls:commPct>0.25?'warn':(commPct>0?'ok':'')},
-    {text:locDisc>0?`10% Discount — ${locLabel}`:`No Discount — ${locLabel}`,cls:locDisc>0?'ok':''},
-    {text:empCount<10?'PED / Specific Wait: 1 Year':'PED & Specific: Nil Waiting',cls:empCount<10?'warn':'ok'},
-  ];
-  if(skippedCount>0)tagData.push({text:`${skippedCount} member(s) skipped (no age / out of range)`,cls:'err'});
-  tagData.forEach(t=>{const span=document.createElement('span');span.className='tag '+(t.cls||'');span.textContent=t.text;tags.appendChild(span);});
+  document.getElementById('rSubBeforeComm').textContent = fmt(afterMat);
+  document.getElementById('rComm').textContent = commPct > 0 ? `+ ${fmt(commAmt)} (${(commPct*100).toFixed(1)}%)` : 'Nil (0%)';
+  document.getElementById('rNetSub').textContent = fmt(netPremium);
+  document.getElementById('rGST').textContent   = fmt(gst);
+  document.getElementById('rGrossTotal').textContent = fmt(grossPrem);
+
+  const tags = document.getElementById('tagList');
+  tags.innerHTML = '';
+  const isRenewal = document.getElementById('policyType').value === 'renewal';
+  const locLabel  = locSel.options[locSel.selectedIndex].text;
+  [
+    { text: fd==='E' ? 'Employee Only' : 'E + Spouse + Children', cls:'' },
+    { text: `SI ₹${(si/100000).toFixed(0)} Lakh`, cls:'' },
+    { text: `${ratedLives} Lives Rated`, cls: ratedLives>=MIN_EMP?'ok':'warn' },
+    { text: `${empCount} Employees`, cls: empCount>=MIN_EMP?'ok':'' },
+    { text: matCover && totalMat>0 ? `Maternity ₹${(matSI/1000).toFixed(0)}K Included` : matCover && empCount<10 ? 'Maternity: Skipped (<10 emp)' : 'No Maternity', cls: matCover&&totalMat>0?'ok':(matCover&&empCount<10?'warn':'') },
+    { text: isRenewal ? 'Renewal — Exclusive Mandate Required' : 'Fresh Policy', cls: isRenewal?'warn':'ok' },
+    { text: commPct>0 ? `Mark-up ${(commPct*100).toFixed(1)}%` : 'No Mark-up', cls: commPct>0.25?'warn':(commPct>0?'ok':'') },
+    { text: locDisc>0 ? `10% Discount — ${locLabel}` : `No Discount — ${locLabel}`, cls: locDisc>0?'ok':'' },
+    { text: empCount<MIN_EMP ? 'PED / Specific Wait: 1 Year' : 'PED & Specific: Nil Waiting', cls: empCount<MIN_EMP?'warn':'ok' },
+  ].forEach(t => {
+    const s = document.createElement('span');
+    s.className = 'tag ' + (t.cls||'');
+    s.textContent = t.text;
+    tags.appendChild(s);
+  });
 
   document.getElementById('resultsCard').classList.remove('hidden');
   document.getElementById('pdfBtn').classList.remove('hidden');
   document.getElementById('resultsCard').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-// ═══════════════════════════════════════════════════════════
-// PDF DOWNLOAD — snapshot only the results card
-// ═══════════════════════════════════════════════════════════
 async function downloadPDF() {
   const btn = document.getElementById('pdfBtn');
   btn.classList.add('loading');
-  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Generating PDF…`;
-
-  const RESTORE_HTML = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Download Premium Summary (PDF)`;
-
+  const RESTORE = btn.innerHTML;
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Generating PDF…`;
   try {
-    const el = document.body;
-
-    // Snapshot full page at scale 2
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#F5F3EE',
-      logging: false,
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: document.documentElement.scrollWidth,
-      width: document.documentElement.scrollWidth,
-      height: document.documentElement.scrollHeight,
-      windowHeight: document.documentElement.scrollHeight,
-    });
-
-    const { jsPDF } = window.jspdf;
-
-    // --- PDF page dimensions ---
-    const MARGIN    = 8;           // mm side margin
-    const HDR_H     = 18;          // mm teal header
-    const FTR_H     = 10;          // mm footer
-    const PAGE_W    = 210;         // A4 width mm
-    const PAGE_H_A4 = 297;         // A4 height mm
-    const CONTENT_W = PAGE_W - MARGIN * 2;
-
-    // Scale canvas to fit content width
-    const scale     = CONTENT_W / (canvas.width / 2); // px to mm ratio
-    const totalImgH = (canvas.height / 2) * scale;    // total image height in mm
-
-    // How much image fits on page 1 (below header) and subsequent pages
-    const firstPageImgH = PAGE_H_A4 - HDR_H - 4 - FTR_H;
-    const otherPageImgH = PAGE_H_A4 - 8 - FTR_H;
-
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
+    const canvas = await html2canvas(document.body, {scale:2,useCORS:true,backgroundColor:'#F5F3EE',logging:false,scrollX:0,scrollY:0,windowWidth:document.documentElement.scrollWidth,width:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight,windowHeight:document.documentElement.scrollHeight});
+    const {jsPDF} = window.jspdf;
+    const MARGIN=8,HDR_H=18,FTR_H=10,PAGE_W=210,PAGE_H=297,CONTENT_W=PAGE_W-MARGIN*2;
+    const scl = CONTENT_W/(canvas.width/2);
+    const totalImgH = (canvas.height/2)*scl;
+    const firstH = PAGE_H-HDR_H-4-FTR_H;
+    const otherH = PAGE_H-8-FTR_H;
+    const totalPages = totalImgH<=firstH ? 1 : 1+Math.ceil((totalImgH-firstH)/otherH);
+    const pdf = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
     const company = document.getElementById('companyName').value.trim() || 'Unnamed Company';
-    const dateStr = new Date().toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
-
-    // ── Helper: draw header on a page ──
-    function drawHeader(isFirst) {
-      pdf.setFillColor(17, 163, 135);
-      pdf.rect(0, 0, PAGE_W, HDR_H, 'F');
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(9.5);
-      pdf.text('Tata AIG — SME Exclusive  |  GHI Rater  |  Healthysure', MARGIN, 11);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(7.5);
-      pdf.text(company + '   ·   ' + dateStr, PAGE_W - MARGIN, 11, { align: 'right' });
-    }
-
-    // ── Helper: draw footer on a page ──
-    function drawFooter(pageNum, totalPages) {
-      pdf.setDrawColor(220, 215, 210);
-      pdf.setLineWidth(0.3);
-      pdf.line(MARGIN, PAGE_H_A4 - FTR_H + 1, PAGE_W - MARGIN, PAGE_H_A4 - FTR_H + 1);
-      pdf.setTextColor(160, 155, 150);
-      pdf.setFontSize(6.5);
-      pdf.text(
-        'Healthysure GHI Rater · Rates from HS-TAGIC_Jan_2026.xlsx · Subject to underwriting',
-        PAGE_W / 2, PAGE_H_A4 - 4, { align: 'center' }
-      );
-      pdf.text(`Page ${pageNum} of ${totalPages}`, PAGE_W - MARGIN, PAGE_H_A4 - 4, { align: 'right' });
-    }
-
-    // ── Figure out how many pages needed ──
-    const totalPages = totalImgH <= firstPageImgH
-      ? 1
-      : 1 + Math.ceil((totalImgH - firstPageImgH) / otherPageImgH);
-
-    // ── Render pages ──
+    const dateStr = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
     const imgData = canvas.toDataURL('image/png');
-    let srcYmm = 0; // how far down the source image we've rendered (in mm)
-
-    for (let p = 0; p < totalPages; p++) {
-      if (p > 0) pdf.addPage('a4', 'portrait');
-
-      drawHeader(p === 0);
-
-      const yStart  = p === 0 ? HDR_H + 4 : HDR_H + 4;
-      const sliceH  = p === 0 ? firstPageImgH : otherPageImgH;
-      const remaining = totalImgH - srcYmm;
-      const drawH   = Math.min(sliceH, remaining);
-
-      // Convert mm back to canvas px for sourceY and sourceHeight
-      const srcPxPerMm = canvas.width / (CONTENT_W * 2); // canvas px per mm (at scale 2)
-      const srcY  = srcYmm  * srcPxPerMm * 2;
-      const srcH  = drawH   * srcPxPerMm * 2;
-
-      // Draw a slice of the canvas image
-      // jsPDF addImage: (imageData, format, x, y, w, h, alias, compression, rotation, sx, sy, swidth, sheight)
-      pdf.addImage(
-        imgData, 'PNG',
-        MARGIN, yStart,         // dest x, y on PDF page (mm)
-        CONTENT_W, drawH,       // dest width, height on PDF page (mm)
-        `img_slice_${p}`,       // unique alias per slice
-        'FAST',
-        0,
-        0, srcY,                // source x, y in original image (px)
-        canvas.width, srcH      // source width, height (px)
-      );
-
+    let srcYmm = 0;
+    const px2mm = 2 / (canvas.width / CONTENT_W);
+    for (let p=0; p<totalPages; p++) {
+      if (p>0) pdf.addPage('a4','portrait');
+      pdf.setFillColor(17,163,135); pdf.rect(0,0,PAGE_W,HDR_H,'F');
+      pdf.setTextColor(255,255,255); pdf.setFont('helvetica','bold'); pdf.setFontSize(9.5);
+      pdf.text('Tata AIG — SME Exclusive  |  GHI Rater  |  Healthysure', MARGIN, 11);
+      pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5);
+      pdf.text(company + '   ·   ' + dateStr, PAGE_W-MARGIN, 11, {align:'right'});
+      const yStart = HDR_H+4;
+      const sliceH = p===0 ? firstH : otherH;
+      const drawH = Math.min(sliceH, totalImgH-srcYmm);
+      const srcPxMm = canvas.width/(CONTENT_W*2);
+      pdf.addImage(imgData,'PNG',MARGIN,yStart,CONTENT_W,drawH,`img_${p}`,'FAST',0,0,srcYmm*srcPxMm*2,canvas.width,drawH*srcPxMm*2);
       srcYmm += drawH;
-      drawFooter(p + 1, totalPages);
+      pdf.setDrawColor(220,215,210); pdf.setLineWidth(0.3);
+      pdf.line(MARGIN,PAGE_H-FTR_H+1,PAGE_W-MARGIN,PAGE_H-FTR_H+1);
+      pdf.setTextColor(160,155,150); pdf.setFontSize(6.5);
+      pdf.text('Healthysure GHI Rater · Rates from HS-TAGIC_Jan_2026.xlsx · Subject to underwriting', PAGE_W/2, PAGE_H-4, {align:'center'});
+      pdf.text(`Page ${p+1} of ${totalPages}`, PAGE_W-MARGIN, PAGE_H-4, {align:'right'});
     }
-
-    const filename = (company.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 30) || 'Quote') + '_GHI_Rater.pdf';
-    pdf.save(filename);
-  } catch(e) {
-    alert('PDF generation failed. Please try again.\n' + e.message);
-  } finally {
-    btn.classList.remove('loading');
-    btn.innerHTML = RESTORE_HTML;
-  }
+    pdf.save((company.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30)||'Quote')+'_GHI_Rater.pdf');
+  } catch(e) { alert('PDF failed: '+e.message); }
+  finally { btn.classList.remove('loading'); btn.innerHTML = RESTORE; }
 }
 
-// ═══════════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════════
-const seed = [
-  {name:'Employee 1',age:32,rel:'Employee',gender:'Male'},
-  {name:'Employee 2',age:28,rel:'Employee',gender:'Female'},
-  {name:'Employee 3',age:41,rel:'Employee',gender:'Male'},
-  {name:'Employee 4',age:35,rel:'Employee',gender:'Male'},
-  {name:'Employee 5',age:29,rel:'Employee',gender:'Female'},
-  {name:'Employee 6',age:47,rel:'Employee',gender:'Male'},
-  {name:'Employee 7',age:38,rel:'Employee',gender:'Female'},
-];
-seed.forEach(e => addMember(e));
+buildAggTable();
+buildMatTable();
 </script>
 </body>
 </html>
