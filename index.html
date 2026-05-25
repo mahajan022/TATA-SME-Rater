@@ -65,7 +65,6 @@ input[type=number]{-moz-appearance:textfield}
 
 /* Company name — no inline decline anymore, just a red border flash */
 .company-wrap{position:relative}
-.company-declined{border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(196,50,26,.15)!important}
 
 .agg-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .agg-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:620px}
@@ -169,9 +168,8 @@ input[type=number]{-moz-appearance:textfield}
     <div class="full">
       <label>Company Name</label>
       <div class="company-wrap">
-        <input type="text" id="companyName" placeholder="e.g. Acme Technologies Pvt. Ltd." oninput="checkDecline(this)" autocomplete="off">
+        <input type="text" id="companyName" placeholder="e.g. Acme Technologies Pvt. Ltd." autocomplete="off">
       </div>
-      <div class="info red hidden" id="declineErr"><strong>⛔ Declined Industry:</strong> <span id="declineErrMsg"></span> — Tata AIG will not accept this case.</div>
       <!-- Inline decline list - always visible below company name -->
       <div style="margin-top:10px">
         <div id="declineToggleBtn" onclick="toggleDeclineList()" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--accent);user-select:none">
@@ -489,6 +487,15 @@ function toggleDeclineList() {
   arrow.textContent = open ? '▲' : '▼';
 }
 
+let _declineTimer = null;
+function debouncedDecline(inp) {
+  clearTimeout(_declineTimer);
+  // Clear warning immediately while typing
+  inp.classList.remove('company-declined');
+  document.getElementById('declineErr').classList.add('hidden');
+  _declineTimer = setTimeout(() => checkDecline(inp), 600);
+}
+
 function checkDecline(inp) {
   const val = inp.value.toLowerCase().trim();
   const err = document.getElementById('declineErr');
@@ -498,7 +505,7 @@ function checkDecline(inp) {
     err.classList.add('hidden');
     return;
   }
-  const hits = DECLINE_KEYS.filter(d => d.keys.some(k => val.includes(k))).map(d => d.label);
+  const hits = DECLINE_KEYS.filter(d => d.keys.some(k => new RegExp('\\b' + k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b','i').test(val))).map(d => d.label);
   if (hits.length) {
     inp.classList.add('company-declined');
     err.classList.remove('hidden');
@@ -779,8 +786,8 @@ function calculate() {
   // BADGES — color-coded, no neutral grey for key states
   const isRenewal = document.getElementById('policyType').value === 'renewal';
   const locLabel  = locSel.options[locSel.selectedIndex].text;
-  const hasMaturity = matCover && totalMat > 0;
-  const matSkipped  = matCover && empCount < 10;
+  const hasMaturity = matCover;
+  const matSkipped  = false; // no longer used
   const belowMinEmp = empCount < MIN_EMP; // won't reach here but kept for waiting tag
 
   const tags = document.getElementById('tagList');
