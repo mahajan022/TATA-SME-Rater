@@ -23,6 +23,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .hdr-title{font-family:'DM Serif Display',serif;color:#fff;font-size:19px;line-height:1.1}
 .hdr-sub{font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 .hdr-badge{margin-left:auto;background:rgba(255,255,255,.2);color:#fff;padding:5px 14px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;border:1px solid rgba(255,255,255,.3);flex-shrink:0}
+/* Decline list button in header */
+.decline-list-btn{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:5px 14px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:background .2s;flex-shrink:0}
+.decline-list-btn:hover{background:rgba(255,255,255,.25)}
+
+/* Decline list modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:#fff;border-radius:20px;width:100%;max-width:600px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal-hdr{background:var(--accent);padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+.modal-hdr h3{font-family:'DM Serif Display',serif;color:#fff;font-size:18px}
+.modal-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-close:hover{background:rgba(255,255,255,.35)}
+.modal-body{padding:20px 24px;overflow-y:auto}
+.modal-intro{font-size:12.5px;color:var(--sub);margin-bottom:16px;line-height:1.6}
+.decline-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:8px;background:var(--accent-light);border:1px solid var(--accent-mid)}
+.decline-item-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.decline-item-text{font-size:12.5px;color:var(--accent);font-weight:500;line-height:1.4}
+
+/* Waiting period popup (red inline banner, shown when < 10 emp) */
+.waiting-popup{background:var(--accent-light);border:1.5px solid var(--accent-mid);border-radius:12px;padding:14px 16px;margin-top:12px;display:none}
+.waiting-popup.show{display:block}
+.waiting-popup h4{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px}
+.waiting-popup ul{list-style:none;padding:0}
+.waiting-popup ul li{font-size:12px;color:var(--accent);padding:3px 0;display:flex;gap:8px}
+.waiting-popup ul li::before{content:'•';flex-shrink:0}
 
 .main{max-width:860px;margin:0 auto;padding:32px 16px 0}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 28px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
@@ -38,14 +63,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
 input[type=number]{-moz-appearance:textfield}
 
+/* Company name — no inline decline anymore, just a red border flash */
 .company-wrap{position:relative}
-.decline-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:16px;display:none;pointer-events:none}
-.decline-panel{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:2px solid var(--accent);border-radius:12px;padding:14px 16px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);display:none}
-.decline-panel.show{display:block}
-.decline-panel h4{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px}
-.decline-panel p{font-size:12px;color:var(--sub);line-height:1.5}
-.decline-tags{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
-.decline-tag{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:500}
+.company-declined{border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(196,50,26,.15)!important}
 
 .agg-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .agg-tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:620px}
@@ -90,7 +110,6 @@ input[type=number]{-moz-appearance:textfield}
 .result-cell-value{font-family:'DM Serif Display',serif;font-size:21px;line-height:1}
 .result-cell-value.accent{color:var(--accent)}
 .result-cell-value.green{color:var(--green)}
-/* Net premium highlight */
 .result-cell.net-highlight{border:2px solid var(--teal);background:var(--teal-light)}
 .result-cell.net-highlight .result-cell-value{color:var(--teal-dark)}
 
@@ -101,16 +120,19 @@ input[type=number]{-moz-appearance:textfield}
 .rbr .val{font-weight:600;color:var(--text)}
 .rbr.total .lbl{color:var(--text);font-weight:700;font-size:14px}
 .rbr.total .val{font-size:17px;color:var(--accent);font-weight:700}
-/* Net premium row highlight in breakdown */
 .rbr.net-row{background:rgba(17,163,135,.10);border-radius:8px;padding:10px 12px;margin:4px -4px;border-bottom:none;border:1.5px solid rgba(17,163,135,.3)}
 .rbr.net-row .lbl{color:var(--teal-dark);font-weight:700;font-size:13.5px}
 .rbr.net-row .val{color:var(--teal-dark);font-size:15px;font-weight:700}
 
+/* BADGES — only the selected-state color, no neutral grey */
 .tag-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
-.tag{background:var(--tag-bg);color:var(--sub);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:500}
-.tag.warn{background:#FEF3E2;color:var(--gold);border:1px solid var(--gold-border)}
-.tag.ok{background:var(--green-light);color:var(--green);border:1px solid #B6DEC7}
-.tag.err{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid)}
+.tag{border-radius:20px;padding:4px 12px;font-size:11px;font-weight:500}
+/* default = neutral */
+.tag{background:var(--tag-bg);color:var(--sub)}
+/* explicit states */
+.tag.green{background:var(--green-light);color:var(--green);border:1px solid #B6DEC7}
+.tag.yellow{background:var(--gold-light);color:var(--gold);border:1px solid var(--gold-border)}
+.tag.red{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid)}
 
 .pdf-strip{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-top:12px;gap:16px}
 .pdf-strip-info{display:flex;align-items:center;gap:12px}
@@ -130,7 +152,7 @@ input[type=number]{-moz-appearance:textfield}
 <body>
 
 <div class="hdr">
-  <div style="width:46px;height:46px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(255,255,255,.3);flex-shrink:0;font-size:10px;color:rgba(255,255,255,.5);font-weight:500">LOGO</div>
+  <img src="logo.webp" alt="Logo" style="width:46px;height:46px;border-radius:10px;object-fit:contain;background:rgba(255,255,255,.15);flex-shrink:0;padding:4px">
   <div>
     <div class="hdr-title">Tata AIG — SME Exclusive</div>
     <div class="hdr-sub">Group Health Insurance · GHI Rater · Healthysure</div>
@@ -148,14 +170,19 @@ input[type=number]{-moz-appearance:textfield}
       <label>Company Name</label>
       <div class="company-wrap">
         <input type="text" id="companyName" placeholder="e.g. Acme Technologies Pvt. Ltd." oninput="checkDecline(this)" autocomplete="off">
-        <span class="decline-icon" id="declineIcon">⛔</span>
-        <div class="decline-panel" id="declinePanel">
-          <h4>⛔ Industry Likely on Decline List</h4>
-          <p id="declinePanelMsg"></p>
-          <div class="decline-tags" id="declineTags"></div>
-        </div>
       </div>
       <div class="info red hidden" id="declineErr"><strong>⛔ Declined Industry:</strong> <span id="declineErrMsg"></span> — Tata AIG will not accept this case.</div>
+      <!-- Inline decline list - always visible below company name -->
+      <div style="margin-top:10px">
+        <div id="declineToggleBtn" onclick="toggleDeclineList()" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--accent);user-select:none">
+          <span>⛔</span><span>View Decline List</span><span id="declineArrow" style="font-size:9px">▼</span>
+        </div>
+        <div id="inlineDeclineList" style="display:none;margin-top:8px;background:var(--accent-light);border:1.5px solid var(--accent-mid);border-radius:12px;padding:14px 16px">
+          <p style="font-size:11px;color:var(--accent);font-weight:600;margin-bottom:10px">Tata AIG will NOT accept cases from these industries:</p>
+          <div id="declineListItems" style="display:flex;flex-direction:column;gap:5px"></div>
+          <p style="font-size:10.5px;color:var(--accent);margin-top:10px;font-style:italic">* This is illustrative and not an exhaustive list.</p>
+        </div>
+      </div>
     </div>
     <div>
       <label>Policy Type</label>
@@ -229,7 +256,7 @@ input[type=number]{-moz-appearance:textfield}
   <div class="info red hidden" id="matMinErr"><strong>⚠ Maternity requires min. 10 employees.</strong> Currently below threshold — loading will NOT be applied.</div>
   <div class="info gold hidden" id="matNote"><strong>Maternity Note:</strong> Loading applies only to <strong>female employees &amp; female spouses aged 18–45</strong>. Covers normal delivery, C-section &amp; newborn up to maternity SI.</div>
   <div class="info red hidden" id="matEOnlyNote"><strong>Heads-up:</strong> For Employee Only plans, maternity loading applies to <strong>female employees only</strong> (no spouse row).</div>
-  <div class="info gold hidden" id="waitNote"><strong>Waiting Periods:</strong> ≥ 11 employees → PED &amp; Specific Disease waits are <strong>Nil</strong>. &lt; 11 employees → 1-year waiting period applies.</div>
+  <div class="info gold hidden" id="waitNote"><strong>Waiting Periods:</strong> ≥ 10 employees → PED &amp; Specific Disease waits are <strong>Nil</strong>. &lt; 10 employees → 1-year waiting period applies.</div>
 </div>
 
 <!-- ③ Commission -->
@@ -248,20 +275,19 @@ input[type=number]{-moz-appearance:textfield}
       <option value="17.5">17.5%</option>
       <option value="20">20.0%</option>
       <option value="22.5">22.5%</option>
-      <option value="25">25.0% — Standard Limit</option>
-      <option value="27.5">27.5% ⚠ Above Standard</option>
-      <option value="30">30.0% ⚠ Maximum (SME Exclusive Mandate)</option>
+      <option value="25">25.0%</option>
+      <option value="27.5">27.5%</option>
+      <option value="30">30.0%</option>
     </select>
   </div>
-  <div class="info gold hidden" id="commWarnBox"><strong>⚠ Above Standard Limit (25%):</strong> Only permissible under Healthysure SME Exclusive mandate. Confirm with Tata AIG before quoting.</div>
-  <p style="font-size:12px;color:var(--sub);margin-top:9px">Mark-up applied on sub-total so that insurer receives the full base amount. Net Premium = Sub-total ÷ (1 − mark-up%).</p>
+
 </div>
 
 <!-- ④ Member Details -->
 <div class="card">
   <div class="sec-label">Member Details — Age-Band Entry</div>
   <p style="font-size:12.5px;color:var(--sub);margin-bottom:16px">
-    Enter <strong>count of lives</strong> in each age band. Min <strong>11 employees</strong> to bind.
+    Enter <strong>count of lives</strong> in each age band.
     Rates shown per-life (excl. GST) for selected SI. Employee/Spouse bands: 18–60 only.
   </p>
 
@@ -280,6 +306,18 @@ input[type=number]{-moz-appearance:textfield}
     <span class="lc-lbl">Employees:</span>
     <span class="lc-val" id="empCount">0</span>
     <span class="lc-note" id="minNote"></span>
+  </div>
+
+  <!-- Waiting period warning popup (< 10 employees) -->
+  <div class="waiting-popup" id="waitingPopup">
+    <h4>⏳ 1-Year Waiting Periods Apply (Less than 10 Employees)</h4>
+    <ul>
+      <li>Pre-Existing Diseases (PED) — 1-year waiting period</li>
+      <li>Specific Disease waiting period — 1 year</li>
+      <li>Initial waiting period — 30 days (for all except accidents)</li>
+      <li>Maternity waiting period — 9 months (if maternity included)</li>
+      <li>Waiting periods become <strong>Nil</strong> once headcount reaches 10+ employees</li>
+    </ul>
   </div>
 
   <div class="mat-section hidden" id="matFemSection">
@@ -303,7 +341,7 @@ input[type=number]{-moz-appearance:textfield}
     </div>
   </div>
 
-  <div class="info red hidden" id="memberErr">At least <strong>11 employee</strong> lives are required to bind this policy with Tata AIG.</div>
+  <div class="info red hidden" id="memberErr">At least <strong>10 employee</strong> lives are required to bind this policy with Tata AIG.</div>
 </div>
 
 <!-- Calculate -->
@@ -381,60 +419,95 @@ const EMP_SP_BANDS = ['[18-25]','[26-35]','[36-45]','[46-50]','[51-55]','[56-60]
 const CHILD_BANDS  = ['[0-5]','[6-17]','[18-25]','[26-35]','[36-45]','[46-50]','[51-55]','[56-60]'];
 const MAT_BANDS    = ['[18-25]','[26-35]','[36-45]'];
 
+const MIN_EMP = 10;
+
 const DECLINE_LIST = [
-  { keys:['armed','police','crpf','army','navy','airforce'],              label:'Armed Professionals (Police/CRPF/Army/Navy/Airforce)' },
-  { keys:['circus','stunt'],                                              label:'Circus Workers and Stunt Artists' },
-  { keys:['racing','horseback'],                                          label:'Racing on wheels or horseback' },
-  { keys:['healthcare worker','hospital','clinic','diagnostic','doctor','nurse'],  label:'Healthcare Workers / Hospitals / Diagnostic Centers' },
-  { keys:['hunter','hunting'],                                            label:'Hunters' },
-  { keys:['hazard worker','industrial worker'],                           label:'Industrial Workers (Hazard)' },
-  { keys:['journalist','media house','press club'],                       label:'Journalist / Media' },
-  { keys:['political associat','political party'],                        label:'Political Association' },
-  { keys:['mountaineer','mountaineering'],                                label:'Mountaineers' },
-  { keys:['politician'],                                                  label:'Politicians' },
-  { keys:['professional athlete','professional sport'],                   label:'Professional Athletes' },
-  { keys:['river raft','rafting'],                                        label:'River Rafting' },
-  { keys:['underground mining','underground mine'],                       label:'Underground Mining' },
-  { keys:['underwater extraction','underwater construction'],             label:'Underwater extraction or construction' },
-  { keys:['oil explor','gas explor','petroleum refin','oil refin'],       label:'Oil/Gas exploration, production, or refining' },
-  { keys:['chemical industr','chemical company','chemicals ltd'],         label:'Chemical Industries' },
-  { keys:['ammunition','explosive','firework','toxic substance'],         label:'Ammunition / Explosives / Fireworks / Toxic substances' },
-  { keys:['airline crew','seafaring','sea faring','sailor'],              label:'Airline or seafaring personnel' },
-  { keys:['security force'],                                              label:'Security Forces' },
-  { keys:['association of doctors','association of hospitals','diagnostic center assoc'], label:'Associations of Doctors/Hospitals/Diagnostics' },
-  { keys:['association of lawyers','lawyers association','bar council'],  label:'Lawyers / Association of Lawyers' },
-  { keys:['religious trust','charity trust','charitable trust'],          label:'Religious Trust / Charitable Institution' },
-  { keys:['high tension','electrical installation'],                      label:'Electrical installation with high tension supply' },
+  { label:'Armed Professionals (Police / CRPF / Army / Navy / Airforce)' },
+  { label:'Circus Workers and Stunt Artist' },
+  { label:'Engaged in racing on wheels or horseback' },
+  { label:'Healthcare workers' },
+  { label:'Hunters' },
+  { label:'Industrial Workers (Hazard workers)' },
+  { label:'Journalist' },
+  { label:'Political Association' },
+  { label:'Mountaineer' },
+  { label:'Politicians' },
+  { label:'Professional Atheletes' },
+  { label:'River Rafting' },
+  { label:'Underground mining' },
+  { label:'Underwater extraction or construction' },
+  { label:'Oil or gas exploration, production, or refining' },
+  { label:'Chemical industries' },
+  { label:'Industries that manufacture, store, or use ammunition, explosives, fireworks, or substantial quantities of toxic substances' },
+  { label:'Airline or sea faring personnel' },
+  { label:'Security forces' },
+  { label:'Associations of Doctors, Hospitals, Diagnostic centers' },
+  { label:'Lawyers / Association of Lawyers' },
+  { label:'Religious Trust and Institutions involved in charity' },
+  { label:'Persons involved in electrical installation with high tension supply' },
 ];
 
-const MIN_EMP = 11;
+const DECLINE_KEYS = [
+  { keys:['armed','police','crpf','army','navy','airforce'],                    label:'Armed Professionals (Police / CRPF / Army / Navy / Airforce)' },
+  { keys:['circus','stunt'],                                                    label:'Circus Workers and Stunt Artist' },
+  { keys:['racing','horseback'],                                                label:'Engaged in racing on wheels or horseback' },
+  { keys:['healthcare worker','hospital','clinic','diagnostic','doctor','nurse'],label:'Healthcare workers' },
+  { keys:['hunter','hunting'],                                                  label:'Hunters' },
+  { keys:['hazard worker','industrial worker'],                                 label:'Industrial Workers (Hazard workers)' },
+  { keys:['journalist','media house','press club'],                             label:'Journalist' },
+  { keys:['political associat','political party'],                              label:'Political Association' },
+  { keys:['mountaineer','mountaineering'],                                      label:'Mountaineer' },
+  { keys:['politician'],                                                        label:'Politicians' },
+  { keys:['professional athlete','professional sport'],                         label:'Professional Atheletes' },
+  { keys:['river raft','rafting'],                                              label:'River Rafting' },
+  { keys:['underground mining','underground mine'],                             label:'Underground mining' },
+  { keys:['underwater extraction','underwater construction'],                   label:'Underwater extraction or construction' },
+  { keys:['oil explor','gas explor','petroleum refin','oil refin'],             label:'Oil or gas exploration, production, or refining' },
+  { keys:['chemical industr','chemical company','chemicals ltd'],               label:'Chemical industries' },
+  { keys:['ammunition','explosive','firework','toxic substance'],               label:'Industries that manufacture, store, or use ammunition, explosives, fireworks, or substantial quantities of toxic substances' },
+  { keys:['airline','seafaring','sea faring','sailor'],                         label:'Airline or sea faring personnel' },
+  { keys:['security force'],                                                    label:'Security forces' },
+  { keys:['association of doctors','association of hospitals','diagnostic center'], label:'Associations of Doctors, Hospitals, Diagnostic centers' },
+  { keys:['association of lawyers','lawyers association','bar council'],        label:'Lawyers / Association of Lawyers' },
+  { keys:['religious trust','charity trust','charitable trust'],                label:'Religious Trust and Institutions involved in charity' },
+  { keys:['high tension','electrical installation'],                            label:'Persons involved in electrical installation with high tension supply' },
+];
+
+// Populate inline decline list
+(function(){
+  const container = document.getElementById('declineListItems');
+  DECLINE_LIST.forEach(d => {
+    container.innerHTML += `<div style="display:flex;align-items:flex-start;gap:6px;padding:5px 8px;background:#fff;border-radius:7px;border:1px solid var(--accent-mid)"><span style="flex-shrink:0;font-size:11px">⛔</span><span style="font-size:11px;color:var(--accent);font-weight:500;line-height:1.4">${d.label}</span></div>`;
+  });
+})();
+
+function toggleDeclineList() {
+  const list = document.getElementById('inlineDeclineList');
+  const arrow = document.getElementById('declineArrow');
+  const open = list.style.display === 'none';
+  list.style.display = open ? 'block' : 'none';
+  arrow.textContent = open ? '▲' : '▼';
+}
 
 function checkDecline(inp) {
   const val = inp.value.toLowerCase().trim();
-  const icon = document.getElementById('declineIcon');
-  const panel = document.getElementById('declinePanel');
   const err = document.getElementById('declineErr');
-  const tagsEl = document.getElementById('declineTags');
-  const msgEl = document.getElementById('declinePanelMsg');
   const errMsgEl = document.getElementById('declineErrMsg');
   if (!val || val.length < 3) {
-    icon.style.display='none'; panel.classList.remove('show'); err.classList.add('hidden'); return;
+    inp.classList.remove('company-declined');
+    err.classList.add('hidden');
+    return;
   }
-  const hits = DECLINE_LIST.filter(d => d.keys.some(k => val.includes(k))).map(d => d.label);
+  const hits = DECLINE_KEYS.filter(d => d.keys.some(k => val.includes(k))).map(d => d.label);
   if (hits.length) {
-    icon.style.display='block';
-    msgEl.textContent = 'Matches: ' + hits.join('; ') + '. Tata AIG does not accept cases from these industries.';
-    tagsEl.innerHTML = hits.map(h=>`<span class="decline-tag">⛔ ${h}</span>`).join('');
-    panel.classList.add('show');
+    inp.classList.add('company-declined');
     err.classList.remove('hidden');
     errMsgEl.textContent = hits.join('; ');
   } else {
-    icon.style.display='none'; panel.classList.remove('show'); err.classList.add('hidden');
+    inp.classList.remove('company-declined');
+    err.classList.add('hidden');
   }
 }
-document.addEventListener('click', e => {
-  if (!e.target.closest('.company-wrap')) document.getElementById('declinePanel').classList.remove('show');
-});
 
 function buildAggTable() {
   const fd = document.getElementById('familyDef').value;
@@ -528,6 +601,14 @@ function onAggInput() {
   if (empCount < MIN_EMP) { noteEl.textContent = `Need ${MIN_EMP - empCount} more employee(s)`; noteEl.style.color='var(--accent)'; }
   else { noteEl.textContent = '✓ Minimum met'; noteEl.style.color = 'var(--green)'; }
 
+  // Waiting period popup: show if < 10 employees, hide if >= 10
+  const waitingPopup = document.getElementById('waitingPopup');
+  if (empCount > 0 && empCount < MIN_EMP) {
+    waitingPopup.classList.add('show');
+  } else {
+    waitingPopup.classList.remove('show');
+  }
+
   checkMatMinLives(empCount);
 }
 
@@ -564,12 +645,10 @@ function buildMatTable() {
     if (el) el.textContent = MAT_LOADING[b] && MAT_LOADING[b][matSI] ? '₹'+Math.round(MAT_LOADING[b][matSI]).toLocaleString('en-IN') : '—';
   });
 
-  // FIX: Female Spouse row only shown for ESC, not Employee Only
   const matRows = fd === 'E'
     ? ['Female Employees']
     : ['Female Employees', 'Female Spouses'];
 
-  // Update desc text
   const descEl = document.getElementById('matFemDesc');
   if (descEl) {
     descEl.innerHTML = fd === 'E'
@@ -618,7 +697,7 @@ function onMaternityChange() {
 }
 function onCommChange() {
   const val = parseFloat(document.getElementById('commSelect').value);
-  document.getElementById('commWarnBox').classList.toggle('hidden', val <= 25);
+  // commWarnBox removed
   const sel = document.getElementById('commSelect');
   if (val > 25) { sel.style.color='var(--gold)'; sel.style.borderColor='#E0C98A'; sel.style.backgroundColor='var(--gold-light)'; }
   else { sel.style.color='var(--accent)'; sel.style.borderColor='var(--accent-mid)'; sel.style.backgroundColor='var(--accent-light)'; }
@@ -639,12 +718,6 @@ function calculate() {
 
   let empCount = 0;
   document.querySelectorAll('#aggBody input[data-row="employee"]').forEach(i => empCount += parseInt(i.value)||0);
-
-  if (empCount < MIN_EMP) {
-    document.getElementById('memberErr').classList.remove('hidden');
-    document.getElementById('memberErr').scrollIntoView({behavior:'smooth',block:'center'});
-    return;
-  }
 
   let totalBase = 0, ratedLives = 0;
   const rateTable = fd === 'E' ? RATES_E : RATES_ESC;
@@ -671,8 +744,6 @@ function calculate() {
   const afterLoc = totalBase - locAmt;
   const afterMat = afterLoc + totalMat;
 
-  // FIX: Correct markup formula — insurer receives full afterMat
-  // Net Premium = afterMat / (1 - commPct)  so that Net − commission = afterMat
   const netPremium = commPct < 1 ? afterMat / (1 - commPct) : afterMat;
   const commAmt    = netPremium - afterMat;
   const gst        = netPremium * 0.18;
@@ -705,23 +776,48 @@ function calculate() {
   document.getElementById('rGST').textContent   = fmt(gst);
   document.getElementById('rGrossTotal').textContent = fmt(grossPrem);
 
-  const tags = document.getElementById('tagList');
-  tags.innerHTML = '';
+  // BADGES — color-coded, no neutral grey for key states
   const isRenewal = document.getElementById('policyType').value === 'renewal';
   const locLabel  = locSel.options[locSel.selectedIndex].text;
-  [
-    { text: fd==='E' ? 'Employee Only' : 'E + Spouse + Children', cls:'' },
-    { text: `SI ₹${(si/100000).toFixed(0)} Lakh`, cls:'' },
-    { text: `${ratedLives} Lives Rated`, cls: ratedLives>=MIN_EMP?'ok':'warn' },
-    { text: `${empCount} Employees`, cls: empCount>=MIN_EMP?'ok':'' },
-    { text: matCover && totalMat>0 ? `Maternity ₹${(matSI/1000).toFixed(0)}K Included` : matCover && empCount<10 ? 'Maternity: Skipped (<10 emp)' : 'No Maternity', cls: matCover&&totalMat>0?'ok':(matCover&&empCount<10?'warn':'') },
-    { text: isRenewal ? 'Renewal — Exclusive Mandate Required' : 'Fresh Policy', cls: isRenewal?'warn':'ok' },
-    { text: commPct>0 ? `Mark-up ${(commPct*100).toFixed(1)}%` : 'No Mark-up', cls: commPct>0.25?'warn':(commPct>0?'ok':'') },
-    { text: locDisc>0 ? `10% Discount — ${locLabel}` : `No Discount — ${locLabel}`, cls: locDisc>0?'ok':'' },
-    { text: empCount<MIN_EMP ? 'PED / Specific Wait: 1 Year' : 'PED & Specific: Nil Waiting', cls: empCount<MIN_EMP?'warn':'ok' },
-  ].forEach(t => {
+  const hasMaturity = matCover && totalMat > 0;
+  const matSkipped  = matCover && empCount < 10;
+  const belowMinEmp = empCount < MIN_EMP; // won't reach here but kept for waiting tag
+
+  const tags = document.getElementById('tagList');
+  tags.innerHTML = '';
+
+  const badgeDefs = [
+    { text: fd==='E' ? 'Employee Only' : 'E + Spouse + Children', cls:'green' },
+    { text: `SI ₹${(si/100000).toFixed(0)} Lakh`, cls:'green' },
+    { text: `${ratedLives} Lives Rated`, cls:'green' },
+    { text: `${empCount} Employees`, cls:'green' },
+    // Maternity: red if not selected, green if included, yellow if skipped
+    hasMaturity
+      ? { text: `Maternity ₹${(matSI/1000).toFixed(0)}K Included`, cls:'green' }
+      : matSkipped
+        ? { text:'Maternity: Skipped (<10 emp)', cls:'yellow' }
+        : { text:'No Maternity', cls:'red' },
+    // Fresh = green, Renewal = yellow
+    isRenewal
+      ? { text:'Renewal — Exclusive Mandate Required', cls:'yellow' }
+      : { text:'Fresh Policy', cls:'green' },
+    // Commission badge — always green
+    commPct > 0
+      ? { text:`Mark-up ${(commPct*100).toFixed(1)}%`, cls:'green' }
+      : { text:'No Mark-up', cls:'green' },
+    // Location — always green
+    locDisc > 0
+      ? { text:`10% Discount — ${locLabel}`, cls:'green' }
+      : { text:`No Discount — ${locLabel}`, cls:'green' },
+    // Waiting period
+    empCount >= MIN_EMP
+      ? { text:'PED & Specific: Nil Waiting', cls:'green' }
+      : { text:'PED & Specific: 1 Year Waiting', cls:'red' },
+  ];
+
+  badgeDefs.forEach(t => {
     const s = document.createElement('span');
-    s.className = 'tag ' + (t.cls||'');
+    s.className = 'tag' + (t.cls ? ' ' + t.cls : '');
     s.textContent = t.text;
     tags.appendChild(s);
   });
@@ -737,19 +833,13 @@ async function downloadPDF() {
   dlBtn.classList.add('loading');
   dlBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> Generating…`;
   try {
-    // Capture only the results card element
     const target = document.getElementById('resultsCard');
     const canvas = await html2canvas(target, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#FAFAF7',
-      logging: false,
-      scrollX: 0,
-      scrollY: -window.scrollY,
+      scale: 2, useCORS: true, backgroundColor: '#FAFAF7',
+      logging: false, scrollX: 0, scrollY: -window.scrollY,
     });
     const {jsPDF} = window.jspdf;
     const MARGIN=12, HDR_H=20, FTR_H=12, PAGE_W=210, PAGE_H=297, CONTENT_W=PAGE_W-MARGIN*2;
-    // Scale canvas to fit page width
     const scl = CONTENT_W / (canvas.width / 2);
     const imgH = (canvas.height / 2) * scl;
     const availH = PAGE_H - HDR_H - 8 - FTR_H;
@@ -762,26 +852,16 @@ async function downloadPDF() {
     const srcPxMm = canvas.width / (CONTENT_W * 2);
     for (let p = 0; p < totalPages; p++) {
       if (p > 0) pdf.addPage('a4','portrait');
-      // Header bar
       pdf.setFillColor(17,163,135); pdf.rect(0,0,PAGE_W,HDR_H,'F');
       pdf.setTextColor(255,255,255); pdf.setFont('helvetica','bold'); pdf.setFontSize(10);
       pdf.text('Tata AIG — SME Exclusive  |  Premium Summary', MARGIN, 13);
       pdf.setFont('helvetica','normal'); pdf.setFontSize(8);
       pdf.text(company + '   ·   ' + dateStr, PAGE_W-MARGIN, 13, {align:'right'});
-      // Image slice
       const yStart = HDR_H + 6;
       const sliceAvail = p === 0 ? availH : (PAGE_H - 8 - FTR_H);
       const drawH = Math.min(sliceAvail, imgH - srcYmm);
-      pdf.addImage(
-        imgData, 'PNG',
-        MARGIN, yStart,
-        CONTENT_W, drawH,
-        `img_${p}`, 'FAST',
-        0, 0,
-        srcYmm * srcPxMm * 2, canvas.width, drawH * srcPxMm * 2
-      );
+      pdf.addImage(imgData, 'PNG', MARGIN, yStart, CONTENT_W, drawH, `img_${p}`, 'FAST', 0, 0, srcYmm * srcPxMm * 2, canvas.width, drawH * srcPxMm * 2);
       srcYmm += drawH;
-      // Footer
       pdf.setDrawColor(220,215,210); pdf.setLineWidth(0.3);
       pdf.line(MARGIN, PAGE_H-FTR_H+1, PAGE_W-MARGIN, PAGE_H-FTR_H+1);
       pdf.setTextColor(160,155,150); pdf.setFontSize(6.5);
