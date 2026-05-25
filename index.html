@@ -90,6 +90,10 @@ input[type=number]{-moz-appearance:textfield}
 .result-cell-value{font-family:'DM Serif Display',serif;font-size:21px;line-height:1}
 .result-cell-value.accent{color:var(--accent)}
 .result-cell-value.green{color:var(--green)}
+/* Net premium highlight */
+.result-cell.net-highlight{border:2px solid var(--teal);background:var(--teal-light)}
+.result-cell.net-highlight .result-cell-value{color:var(--teal-dark)}
+
 .result-breakdown{background:#F0EDE8;border-radius:12px;padding:16px 18px;border:1px solid var(--border)}
 .rbr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
 .rbr:last-child{border-bottom:none}
@@ -97,16 +101,27 @@ input[type=number]{-moz-appearance:textfield}
 .rbr .val{font-weight:600;color:var(--text)}
 .rbr.total .lbl{color:var(--text);font-weight:700;font-size:14px}
 .rbr.total .val{font-size:17px;color:var(--accent);font-weight:700}
+/* Net premium row highlight in breakdown */
+.rbr.net-row{background:rgba(17,163,135,.10);border-radius:8px;padding:10px 12px;margin:4px -4px;border-bottom:none;border:1.5px solid rgba(17,163,135,.3)}
+.rbr.net-row .lbl{color:var(--teal-dark);font-weight:700;font-size:13.5px}
+.rbr.net-row .val{color:var(--teal-dark);font-size:15px;font-weight:700}
+
 .tag-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
 .tag{background:var(--tag-bg);color:var(--sub);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:500}
 .tag.warn{background:#FEF3E2;color:var(--gold);border:1px solid var(--gold-border)}
 .tag.ok{background:var(--green-light);color:var(--green);border:1px solid #B6DEC7}
 .tag.err{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-mid)}
 
-.pdf-btn{width:100%;background:#1A1714;color:#fff;border:none;border-radius:12px;padding:15px;font-family:'DM Serif Display',serif;font-size:17px;cursor:pointer;margin-top:10px;transition:background .2s,box-shadow .2s;box-shadow:0 4px 14px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;gap:10px}
-.pdf-btn:hover{background:#2e2925}
-.pdf-btn svg{width:17px;height:17px;flex-shrink:0}
-.pdf-btn.loading{opacity:.6;pointer-events:none}
+.pdf-strip{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 18px;margin-top:12px;gap:16px}
+.pdf-strip-info{display:flex;align-items:center;gap:12px}
+.pdf-strip-icon{width:36px;height:36px;background:#EEF2FF;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pdf-strip-icon svg{width:18px;height:18px;color:#3B5BDB}
+.pdf-strip-text strong{display:block;font-size:13px;font-weight:600;color:var(--text)}
+.pdf-strip-text span{font-size:11px;color:var(--sub)}
+.pdf-dl-btn{background:#3B5BDB;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;transition:background .2s,box-shadow .2s;box-shadow:0 2px 8px rgba(59,91,219,.3);flex-shrink:0}
+.pdf-dl-btn:hover{background:#2f4ac7;box-shadow:0 4px 12px rgba(59,91,219,.4)}
+.pdf-dl-btn svg{width:15px;height:15px;flex-shrink:0}
+.pdf-dl-btn.loading{opacity:.6;pointer-events:none}
 
 .hidden{display:none!important}
 @media(max-width:600px){.fg{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr}.hdr{flex-wrap:wrap}.hdr-badge{margin-left:0;width:100%;text-align:center}}
@@ -213,7 +228,7 @@ input[type=number]{-moz-appearance:textfield}
   </div>
   <div class="info red hidden" id="matMinErr"><strong>⚠ Maternity requires min. 10 employees.</strong> Currently below threshold — loading will NOT be applied.</div>
   <div class="info gold hidden" id="matNote"><strong>Maternity Note:</strong> Loading applies only to <strong>female employees &amp; female spouses aged 18–45</strong>. Covers normal delivery, C-section &amp; newborn up to maternity SI.</div>
-  <div class="info red hidden" id="matEOnlyNote"><strong>Heads-up:</strong> Maternity is most meaningful when the plan covers spouses. Confirm with Tata AIG underwriting for Employee Only plans.</div>
+  <div class="info red hidden" id="matEOnlyNote"><strong>Heads-up:</strong> For Employee Only plans, maternity loading applies to <strong>female employees only</strong> (no spouse row).</div>
   <div class="info gold hidden" id="waitNote"><strong>Waiting Periods:</strong> ≥ 11 employees → PED &amp; Specific Disease waits are <strong>Nil</strong>. &lt; 11 employees → 1-year waiting period applies.</div>
 </div>
 
@@ -239,10 +254,10 @@ input[type=number]{-moz-appearance:textfield}
     </select>
   </div>
   <div class="info gold hidden" id="commWarnBox"><strong>⚠ Above Standard Limit (25%):</strong> Only permissible under Healthysure SME Exclusive mandate. Confirm with Tata AIG before quoting.</div>
-  <p style="font-size:12px;color:var(--sub);margin-top:9px">Mark-up applied on sub-total (base ± location + maternity) before 18% GST.</p>
+  <p style="font-size:12px;color:var(--sub);margin-top:9px">Mark-up applied on sub-total so that insurer receives the full base amount. Net Premium = Sub-total ÷ (1 − mark-up%).</p>
 </div>
 
-<!-- ④ Member Details — Aggregate Only -->
+<!-- ④ Member Details -->
 <div class="card">
   <div class="sec-label">Member Details — Age-Band Entry</div>
   <p style="font-size:12.5px;color:var(--sub);margin-bottom:16px">
@@ -269,7 +284,7 @@ input[type=number]{-moz-appearance:textfield}
 
   <div class="mat-section hidden" id="matFemSection">
     <div class="sec-label" style="margin-bottom:12px">Maternity Loading — Female Life Counts (Age 18–45 only)</div>
-    <p style="font-size:12px;color:var(--sub);margin-bottom:14px">
+    <p style="font-size:12px;color:var(--sub);margin-bottom:14px" id="matFemDesc">
       Enter <strong>female employees</strong> and <strong>female spouses</strong> per eligible age band. Loading is per-life on top of base premium.
     </p>
     <div class="agg-wrap">
@@ -300,16 +315,16 @@ input[type=number]{-moz-appearance:textfield}
     <div class="sec-label">Premium Summary — <span id="rCompany" style="font-style:italic;font-weight:300;text-transform:none;letter-spacing:0;margin-left:4px">—</span></div>
     <div class="result-grid">
       <div class="result-cell"><div class="result-cell-label">Total Lives Rated</div><div class="result-cell-value" id="rLives">—</div></div>
-      <div class="result-cell"><div class="result-cell-label">Net Premium (excl. GST)</div><div class="result-cell-value accent" id="rNet">—</div></div>
+      <div class="result-cell net-highlight"><div class="result-cell-label">Net Premium (excl. GST)</div><div class="result-cell-value" id="rNet">—</div></div>
       <div class="result-cell"><div class="result-cell-label">Gross Premium (incl. GST)</div><div class="result-cell-value green" id="rGross">—</div></div>
     </div>
     <div class="result-breakdown">
       <div class="rbr"><span class="lbl">Base Premium (all rated lives, excl. GST &amp; mark-up)</span><span class="val" id="rBase">—</span></div>
       <div class="rbr" id="rLocRow"><span class="lbl">Location Discount (10%)</span><span class="val" id="rLoc">—</span></div>
       <div class="rbr" id="rMatRow"><span class="lbl">Maternity Loading (eligible female lives)</span><span class="val" id="rMat">—</span></div>
-      <div class="rbr"><span class="lbl">Sub-total (before mark-up)</span><span class="val" id="rSubBeforeComm">—</span></div>
+      <div class="rbr"><span class="lbl">Sub-total (before mark-up) — insurer receives this amount</span><span class="val" id="rSubBeforeComm">—</span></div>
       <div class="rbr"><span class="lbl">Mark-up / Commission</span><span class="val" id="rComm">—</span></div>
-      <div class="rbr"><span class="lbl">Net Premium (excl. GST)</span><span class="val" id="rNetSub">—</span></div>
+      <div class="rbr net-row"><span class="lbl">✦ Net Premium (excl. GST)</span><span class="val" id="rNetSub">—</span></div>
       <div class="rbr"><span class="lbl">GST @ 18%</span><span class="val" id="rGST">—</span></div>
       <div class="rbr total"><span class="lbl">Total Gross Premium</span><span class="val" id="rGrossTotal">—</span></div>
     </div>
@@ -317,10 +332,21 @@ input[type=number]{-moz-appearance:textfield}
   </div>
 </div>
 
-<button class="pdf-btn hidden" id="pdfBtn" onclick="downloadPDF()">
-  <svg viewBox="0 0 24 24" fill="none"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 3v13M12 16l-4-4M12 16l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  Download Premium Summary (PDF)
-</button>
+<div class="pdf-strip hidden" id="pdfBtn">
+  <div class="pdf-strip-info">
+    <div class="pdf-strip-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#3B5BDB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    </div>
+    <div class="pdf-strip-text">
+      <strong>Download Premium Summary as PDF</strong>
+      <span>Opens print dialog — save as PDF.</span>
+    </div>
+  </div>
+  <button class="pdf-dl-btn" id="pdfDlBtn" onclick="downloadPDF()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M12 16l-4-4M12 16l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+    Download PDF
+  </button>
+</div>
 
 </div>
 
@@ -391,7 +417,6 @@ function checkDecline(inp) {
   const tagsEl = document.getElementById('declineTags');
   const msgEl = document.getElementById('declinePanelMsg');
   const errMsgEl = document.getElementById('declineErrMsg');
-
   if (!val || val.length < 3) {
     icon.style.display='none'; panel.classList.remove('show'); err.classList.add('hidden'); return;
   }
@@ -531,14 +556,29 @@ function checkMatMinLives(empCount) {
 
 function buildMatTable() {
   const matSI = parseInt(document.getElementById('maternitySI').value) || 50000;
+  const fd = document.getElementById('familyDef').value;
+
   ['[18-25]','[26-35]','[36-45]'].forEach((b,i) => {
     const ids = ['mhr1825','mhr2635','mhr3645'];
     const el = document.getElementById(ids[i]);
     if (el) el.textContent = MAT_LOADING[b] && MAT_LOADING[b][matSI] ? '₹'+Math.round(MAT_LOADING[b][matSI]).toLocaleString('en-IN') : '—';
   });
 
+  // FIX: Female Spouse row only shown for ESC, not Employee Only
+  const matRows = fd === 'E'
+    ? ['Female Employees']
+    : ['Female Employees', 'Female Spouses'];
+
+  // Update desc text
+  const descEl = document.getElementById('matFemDesc');
+  if (descEl) {
+    descEl.innerHTML = fd === 'E'
+      ? 'Enter <strong>female employees</strong> per eligible age band. Loading is per-life on top of base premium.'
+      : 'Enter <strong>female employees</strong> and <strong>female spouses</strong> per eligible age band. Loading is per-life on top of base premium.';
+  }
+
   const tbody = document.getElementById('matBody');
-  tbody.innerHTML = ['Female Employees','Female Spouses'].map(label => {
+  tbody.innerHTML = matRows.map(label => {
     const rowKey = label.replace(/ /g,'_').toLowerCase();
     return `<tr>
       <td class="row-label">${label}</td>
@@ -561,7 +601,10 @@ function onMatInput() {
 function onPolicyTypeChange() {
   document.getElementById('renewalNote').classList.toggle('hidden', document.getElementById('policyType').value !== 'renewal');
 }
-function onFamilyDefChange() { buildAggTable(); onMaternityChange(); }
+function onFamilyDefChange() {
+  buildAggTable();
+  onMaternityChange();
+}
 function onSIChange() { buildAggTable(); buildMatTable(); }
 function onMaternityChange() {
   const hasMat = document.getElementById('maternityCover').value === 'yes';
@@ -586,12 +629,12 @@ function fmt(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
 function calculate() {
   document.getElementById('memberErr').classList.add('hidden');
 
-  const fd     = document.getElementById('familyDef').value;
-  const si     = parseInt(document.getElementById('sumInsured').value);
+  const fd      = document.getElementById('familyDef').value;
+  const si      = parseInt(document.getElementById('sumInsured').value);
   const commPct = parseFloat(document.getElementById('commSelect').value) / 100;
   const matCover = document.getElementById('maternityCover').value === 'yes';
-  const matSI  = matCover ? parseInt(document.getElementById('maternitySI').value) : 0;
-  const locSel = document.getElementById('location');
+  const matSI   = matCover ? parseInt(document.getElementById('maternitySI').value) : 0;
+  const locSel  = document.getElementById('location');
   const locDisc = parseFloat(locSel.options[locSel.selectedIndex].value) || 0;
 
   let empCount = 0;
@@ -624,11 +667,14 @@ function calculate() {
     });
   }
 
-  const locAmt     = totalBase * locDisc;
-  const afterLoc   = totalBase - locAmt;
-  const afterMat   = afterLoc + totalMat;
-  const commAmt    = afterMat * commPct;
-  const netPremium = afterMat + commAmt;
+  const locAmt   = totalBase * locDisc;
+  const afterLoc = totalBase - locAmt;
+  const afterMat = afterLoc + totalMat;
+
+  // FIX: Correct markup formula — insurer receives full afterMat
+  // Net Premium = afterMat / (1 - commPct)  so that Net − commission = afterMat
+  const netPremium = commPct < 1 ? afterMat / (1 - commPct) : afterMat;
+  const commAmt    = netPremium - afterMat;
   const gst        = netPremium * 0.18;
   const grossPrem  = netPremium + gst;
 
@@ -686,47 +732,65 @@ function calculate() {
 }
 
 async function downloadPDF() {
-  const btn = document.getElementById('pdfBtn');
-  btn.classList.add('loading');
-  const RESTORE = btn.innerHTML;
-  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none"><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Generating PDF…`;
+  const dlBtn = document.getElementById('pdfDlBtn');
+  const RESTORE = dlBtn.innerHTML;
+  dlBtn.classList.add('loading');
+  dlBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg> Generating…`;
   try {
-    const canvas = await html2canvas(document.body, {scale:2,useCORS:true,backgroundColor:'#F5F3EE',logging:false,scrollX:0,scrollY:0,windowWidth:document.documentElement.scrollWidth,width:document.documentElement.scrollWidth,height:document.documentElement.scrollHeight,windowHeight:document.documentElement.scrollHeight});
+    // Capture only the results card element
+    const target = document.getElementById('resultsCard');
+    const canvas = await html2canvas(target, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#FAFAF7',
+      logging: false,
+      scrollX: 0,
+      scrollY: -window.scrollY,
+    });
     const {jsPDF} = window.jspdf;
-    const MARGIN=8,HDR_H=18,FTR_H=10,PAGE_W=210,PAGE_H=297,CONTENT_W=PAGE_W-MARGIN*2;
-    const scl = CONTENT_W/(canvas.width/2);
-    const totalImgH = (canvas.height/2)*scl;
-    const firstH = PAGE_H-HDR_H-4-FTR_H;
-    const otherH = PAGE_H-8-FTR_H;
-    const totalPages = totalImgH<=firstH ? 1 : 1+Math.ceil((totalImgH-firstH)/otherH);
-    const pdf = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const MARGIN=12, HDR_H=20, FTR_H=12, PAGE_W=210, PAGE_H=297, CONTENT_W=PAGE_W-MARGIN*2;
+    // Scale canvas to fit page width
+    const scl = CONTENT_W / (canvas.width / 2);
+    const imgH = (canvas.height / 2) * scl;
+    const availH = PAGE_H - HDR_H - 8 - FTR_H;
+    const totalPages = imgH <= availH ? 1 : 1 + Math.ceil((imgH - availH) / (PAGE_H - 8 - FTR_H));
+    const pdf = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
     const company = document.getElementById('companyName').value.trim() || 'Unnamed Company';
-    const dateStr = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+    const dateStr = new Date().toLocaleDateString('en-IN',{day:'2-digit', month:'short', year:'numeric'});
     const imgData = canvas.toDataURL('image/png');
     let srcYmm = 0;
-    const px2mm = 2 / (canvas.width / CONTENT_W);
-    for (let p=0; p<totalPages; p++) {
-      if (p>0) pdf.addPage('a4','portrait');
+    const srcPxMm = canvas.width / (CONTENT_W * 2);
+    for (let p = 0; p < totalPages; p++) {
+      if (p > 0) pdf.addPage('a4','portrait');
+      // Header bar
       pdf.setFillColor(17,163,135); pdf.rect(0,0,PAGE_W,HDR_H,'F');
-      pdf.setTextColor(255,255,255); pdf.setFont('helvetica','bold'); pdf.setFontSize(9.5);
-      pdf.text('Tata AIG — SME Exclusive  |  GHI Rater  |  Healthysure', MARGIN, 11);
-      pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5);
-      pdf.text(company + '   ·   ' + dateStr, PAGE_W-MARGIN, 11, {align:'right'});
-      const yStart = HDR_H+4;
-      const sliceH = p===0 ? firstH : otherH;
-      const drawH = Math.min(sliceH, totalImgH-srcYmm);
-      const srcPxMm = canvas.width/(CONTENT_W*2);
-      pdf.addImage(imgData,'PNG',MARGIN,yStart,CONTENT_W,drawH,`img_${p}`,'FAST',0,0,srcYmm*srcPxMm*2,canvas.width,drawH*srcPxMm*2);
+      pdf.setTextColor(255,255,255); pdf.setFont('helvetica','bold'); pdf.setFontSize(10);
+      pdf.text('Tata AIG — SME Exclusive  |  Premium Summary', MARGIN, 13);
+      pdf.setFont('helvetica','normal'); pdf.setFontSize(8);
+      pdf.text(company + '   ·   ' + dateStr, PAGE_W-MARGIN, 13, {align:'right'});
+      // Image slice
+      const yStart = HDR_H + 6;
+      const sliceAvail = p === 0 ? availH : (PAGE_H - 8 - FTR_H);
+      const drawH = Math.min(sliceAvail, imgH - srcYmm);
+      pdf.addImage(
+        imgData, 'PNG',
+        MARGIN, yStart,
+        CONTENT_W, drawH,
+        `img_${p}`, 'FAST',
+        0, 0,
+        srcYmm * srcPxMm * 2, canvas.width, drawH * srcPxMm * 2
+      );
       srcYmm += drawH;
+      // Footer
       pdf.setDrawColor(220,215,210); pdf.setLineWidth(0.3);
-      pdf.line(MARGIN,PAGE_H-FTR_H+1,PAGE_W-MARGIN,PAGE_H-FTR_H+1);
+      pdf.line(MARGIN, PAGE_H-FTR_H+1, PAGE_W-MARGIN, PAGE_H-FTR_H+1);
       pdf.setTextColor(160,155,150); pdf.setFontSize(6.5);
-      pdf.text('Healthysure GHI Rater · Rates from HS-TAGIC_Jan_2026.xlsx · Subject to underwriting', PAGE_W/2, PAGE_H-4, {align:'center'});
+      pdf.text('Healthysure GHI Rater · Rates from HS-TAGIC_Jan_2026.xlsx · Subject to underwriting approval', PAGE_W/2, PAGE_H-4, {align:'center'});
       pdf.text(`Page ${p+1} of ${totalPages}`, PAGE_W-MARGIN, PAGE_H-4, {align:'right'});
     }
-    pdf.save((company.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30)||'Quote')+'_GHI_Rater.pdf');
+    pdf.save((company.replace(/[^a-zA-Z0-9]/g,'_').slice(0,30)||'Quote')+'_Premium_Summary.pdf');
   } catch(e) { alert('PDF failed: '+e.message); }
-  finally { btn.classList.remove('loading'); btn.innerHTML = RESTORE; }
+  finally { dlBtn.classList.remove('loading'); dlBtn.innerHTML = RESTORE; }
 }
 
 buildAggTable();
