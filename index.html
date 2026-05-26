@@ -146,6 +146,36 @@ input[type=number]{-moz-appearance:textfield}
 
 .hidden{display:none!important}
 @media(max-width:600px){.fg{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr}.hdr{flex-wrap:wrap}.hdr-badge{margin-left:0;width:100%;text-align:center}}
+
+/* Rate Breakdown Table */
+.rate-breakdown-section{margin-top:20px;padding-top:18px;border-top:1.5px solid var(--border)}
+.rb-tabs{display:flex;gap:6px;margin-bottom:14px}
+.rb-tab{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--bg);color:var(--sub);transition:all .2s}
+.rb-tab.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.rb-tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+table.rb-tbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:380px}
+table.rb-tbl thead tr{background:var(--bg)}
+table.rb-tbl th{padding:9px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--sub);border-bottom:2px solid var(--border);white-space:nowrap}
+table.rb-tbl th.right{text-align:right}
+table.rb-tbl td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+table.rb-tbl td.right{text-align:right;font-variant-numeric:tabular-nums}
+table.rb-tbl tr:last-child td{border-bottom:none}
+table.rb-tbl tr:hover td{background:#faf9f7}
+table.rb-tbl td.band-cell{font-weight:600;color:var(--text)}
+table.rb-tbl td.rate-cell{color:var(--sub)}
+table.rb-tbl td.prem-cell{font-weight:700;color:var(--teal-dark)}
+table.rb-tbl td.mat-prem-cell{font-weight:700;color:var(--accent)}
+table.rb-tbl tr.total-row td{background:var(--bg);font-weight:700;border-top:2px solid var(--border);font-size:13px}
+table.rb-tbl tr.total-row td.prem-cell{color:var(--teal-dark);font-size:14px}
+table.rb-tbl tr.total-row td.mat-prem-cell{color:var(--accent);font-size:14px}
+table.rb-tbl td .lives-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--teal-light);color:var(--teal-dark);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;min-width:28px}
+table.rb-tbl td .mat-lives-badge{background:var(--accent-light);color:var(--accent);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;min-width:28px;display:inline-flex;align-items:center;justify-content:center}
+.row-cat-chip{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;margin-right:4px}
+.chip-emp{background:#EDF5F0;color:#1A6B3A}
+.chip-sp{background:#EEF2FF;color:#3B5BDB}
+.chip-ch{background:#FAF5EC;color:#A07830}
+.chip-femp{background:var(--accent-light);color:var(--accent)}
+.chip-fsp{background:#fce8f3;color:#9d215a}
 </style>
 </head>
 <body>
@@ -728,22 +758,36 @@ function calculate() {
 
   let totalBase = 0, ratedLives = 0;
   const rateTable = fd === 'E' ? RATES_E : RATES_ESC;
+
+  // Collect per-row/band data for breakdown table
+  const baseRows = [];
   document.querySelectorAll('#aggBody input[data-band]:not(:disabled)').forEach(inp => {
     const count = parseInt(inp.value) || 0;
     if (!count) return;
     const band = inp.dataset.band;
+    const rowLabel = inp.dataset.row; // 'employee','spouse','children'
     const rate = rateTable[band] && rateTable[band][si];
-    if (rate) { totalBase += rate * count; ratedLives += count; }
+    if (rate) {
+      totalBase += rate * count;
+      ratedLives += count;
+      baseRows.push({ row: rowLabel, band, rate, count, prem: rate * count });
+    }
   });
 
   let totalMat = 0;
+  const matRows = [];
   if (matCover && empCount >= 10) {
     document.querySelectorAll('#matBody input[data-matband]').forEach(inp => {
       const count = parseInt(inp.value) || 0;
       if (!count) return;
       const band = inp.dataset.matband;
+      const rowLabel = inp.dataset.matrow; // 'female_employees','female_spouses'
       const loading = MAT_LOADING[band] && MAT_LOADING[band][matSI];
-      if (loading) totalMat += Math.round(loading) * count;
+      if (loading) {
+        const prem = Math.round(loading) * count;
+        totalMat += prem;
+        matRows.push({ row: rowLabel, band, rate: Math.round(loading), count, prem });
+      }
     });
   }
 
@@ -783,45 +827,38 @@ function calculate() {
   document.getElementById('rGST').textContent   = fmt(gst);
   document.getElementById('rGrossTotal').textContent = fmt(grossPrem);
 
-  // BADGES — color-coded, no neutral grey for key states
+  // BADGES
   const isRenewal = document.getElementById('policyType').value === 'renewal';
   const locLabel  = locSel.options[locSel.selectedIndex].text;
   const hasMaturity = matCover;
-  const matSkipped  = false; // no longer used
-  const belowMinEmp = empCount < MIN_EMP; // won't reach here but kept for waiting tag
+  const matSkipped  = false;
+  const belowMinEmp = empCount < MIN_EMP;
 
   const tags = document.getElementById('tagList');
   tags.innerHTML = '';
-
   const badgeDefs = [
     { text: fd==='E' ? 'Employee Only' : 'E + Spouse + Children', cls:'green' },
     { text: `SI ₹${(si/100000).toFixed(0)} Lakh`, cls:'green' },
     { text: `${ratedLives} Lives Rated`, cls:'green' },
     { text: `${empCount} Employees`, cls:'green' },
-    // Maternity: red if not selected, green if included, yellow if skipped
     hasMaturity
       ? { text: `Maternity ₹${(matSI/1000).toFixed(0)}K Included`, cls:'green' }
       : matSkipped
         ? { text:'Maternity: Skipped (<10 emp)', cls:'yellow' }
         : { text:'No Maternity', cls:'red' },
-    // Fresh = green, Renewal = yellow
     isRenewal
       ? { text:'Renewal — Exclusive Mandate Required', cls:'yellow' }
       : { text:'Fresh Policy', cls:'green' },
-    // Commission badge — always green
     commPct > 0
       ? { text:`Mark-up ${(commPct*100).toFixed(1)}%`, cls:'green' }
       : { text:'No Mark-up', cls:'green' },
-    // Location — always green
     locDisc > 0
       ? { text:`10% Discount — ${locLabel}`, cls:'green' }
       : { text:`No Discount — ${locLabel}`, cls:'green' },
-    // Waiting period
     empCount >= MIN_EMP
       ? { text:'PED & Specific: Nil Waiting', cls:'green' }
       : { text:'PED & Specific: 1 Year Waiting', cls:'red' },
   ];
-
   badgeDefs.forEach(t => {
     const s = document.createElement('span');
     s.className = 'tag' + (t.cls ? ' ' + t.cls : '');
@@ -829,9 +866,112 @@ function calculate() {
     tags.appendChild(s);
   });
 
+  // ── BUILD RATE BREAKDOWN TABLE ──
+  buildRateBreakdownTable(baseRows, ratedLives, totalBase, matRows, totalMat, matCover && empCount >= 10);
+
   document.getElementById('resultsCard').classList.remove('hidden');
   document.getElementById('pdfBtn').classList.remove('hidden');
   document.getElementById('resultsCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function buildRateBreakdownTable(baseRows, ratedLives, totalBase, matRows, totalMat, showMat) {
+  const si = parseInt(document.getElementById('sumInsured').value);
+  const siLabel = si >= 100000 ? `₹${(si/100000).toFixed(0)} Lakh` : `₹${si}`;
+  const matSI = parseInt(document.getElementById('maternitySI').value) || 50000;
+  const matSILabel = matSI >= 100000 ? `₹${(matSI/100000).toFixed(0)} Lakh` : `₹${(matSI/1000).toFixed(0)}K`;
+
+  const CAT_CHIP = {
+    employee: '<span class="row-cat-chip chip-emp">Employee</span>',
+    spouse:   '<span class="row-cat-chip chip-sp">Spouse</span>',
+    children: '<span class="row-cat-chip chip-ch">Children</span>',
+  };
+  const MAT_CHIP = {
+    female_employees: '<span class="row-cat-chip chip-femp">Fem. Emp</span>',
+    female_spouses:   '<span class="row-cat-chip chip-fsp">Fem. Spouse</span>',
+  };
+
+  const baseBodyRows = baseRows.map(r => `
+    <tr>
+      <td>${CAT_CHIP[r.row]||r.row}</td>
+      <td class="band-cell">${r.band}</td>
+      <td class="rate-cell right">₹${r.rate.toLocaleString('en-IN')}</td>
+      <td class="right"><span class="lives-badge">${r.count}</span></td>
+      <td class="prem-cell right">₹${Math.round(r.prem).toLocaleString('en-IN')}</td>
+    </tr>`).join('');
+
+  const baseTbl = `
+    <p style="font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Base Premium — SI ${siLabel}</p>
+    <div class="rb-tbl-wrap" style="margin-bottom:20px">
+      <table class="rb-tbl">
+        <thead><tr>
+          <th>Category</th><th>Age Band</th>
+          <th class="right">Rate / Life — ${siLabel}</th>
+          <th class="right">Lives</th>
+          <th class="right">Premium</th>
+        </tr></thead>
+        <tbody>
+          ${baseBodyRows}
+          <tr class="total-row">
+            <td colspan="3" style="color:var(--sub)">Total Base Premium (${ratedLives} lives)</td>
+            <td class="right"><span class="lives-badge">${ratedLives}</span></td>
+            <td class="prem-cell right">₹${Math.round(totalBase).toLocaleString('en-IN')}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+
+  let matTbl = '';
+  if (showMat && matRows.length > 0) {
+    const matBodyRows = matRows.map(r => `
+      <tr>
+        <td>${MAT_CHIP[r.row]||r.row}</td>
+        <td class="band-cell">${r.band}</td>
+        <td class="rate-cell right">₹${r.rate.toLocaleString('en-IN')}</td>
+        <td class="right"><span class="mat-lives-badge">${r.count}</span></td>
+        <td class="mat-prem-cell right">₹${Math.round(r.prem).toLocaleString('en-IN')}</td>
+      </tr>`).join('');
+    const totalMatLives = matRows.reduce((s,r)=>s+r.count, 0);
+    matTbl = `
+      <p style="font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Maternity Loading — Mat. SI ${matSILabel}</p>
+      <div class="rb-tbl-wrap">
+        <table class="rb-tbl">
+          <thead><tr>
+            <th>Category</th><th>Age Band</th>
+            <th class="right">Mat. Loading / Life — ${matSILabel}</th>
+            <th class="right">Female Lives</th>
+            <th class="right">Mat. Premium</th>
+          </tr></thead>
+          <tbody>
+            ${matBodyRows}
+            <tr class="total-row">
+              <td colspan="3" style="color:var(--sub)">Total Maternity Loading (${totalMatLives} female lives)</td>
+              <td class="right"><span class="mat-lives-badge">${totalMatLives}</span></td>
+              <td class="mat-prem-cell right">₹${Math.round(totalMat).toLocaleString('en-IN')}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  const existingSection = document.getElementById('rate-breakdown-section');
+  if (existingSection) existingSection.remove();
+
+  const section = document.createElement('div');
+  section.id = 'rate-breakdown-section';
+  section.className = 'rate-breakdown-section';
+  section.innerHTML = `
+    <div class="sec-label">Rate Breakdown by Age Band</div>
+    ${baseTbl}
+    ${matTbl}
+  `;
+  document.getElementById('resultsCard').appendChild(section);
+}
+
+function rbSwitchTab(t) {
+  document.getElementById('rbd-base-tbl').style.display = t==='base' ? '' : 'none';
+  const matEl = document.getElementById('rbd-mat-tbl');
+  if (matEl) matEl.style.display = t==='mat' ? '' : 'none';
+  document.querySelectorAll('.rb-tab').forEach((el,i) => el.classList.toggle('active', ['base','mat'][i]===t));
 }
 
 async function downloadPDF() {
