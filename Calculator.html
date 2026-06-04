@@ -218,6 +218,7 @@ table.rb-tbl td .mat-lives-badge{background:var(--accent-light);color:var(--acce
     </div>
   </div>
   <div class="info gold hidden" id="renewalNote"><strong>Renewal Case:</strong> Exclusive mandate required. Loss ratio must be ≤ 75%.</div>
+  <div class="info green hidden" id="freshNote"><strong>Fresh Case:</strong> Exclusive mandate required. Loss ratio must be ≤ 75%.</div>
 </div>
 
 <!-- Plan Configuration -->
@@ -597,7 +598,9 @@ function onMatInput() {
 }
 
 function onPolicyTypeChange() {
-  document.getElementById('renewalNote').classList.toggle('hidden', document.getElementById('policyType').value !== 'renewal');
+  const isRenewal = document.getElementById('policyType').value === 'renewal';
+  document.getElementById('renewalNote').classList.toggle('hidden', !isRenewal);
+  document.getElementById('freshNote').classList.toggle('hidden', isRenewal);
 }
 function onFamilyDefChange() { buildAggTable(); onMaternityChange(); }
 function onSIChange() { buildAggTable(); buildMatTable(); }
@@ -713,7 +716,7 @@ function calculate() {
       ? { text:'Renewal — Exclusive Mandate Required', cls:'yellow' }
       : { text:'Fresh Policy', cls:'green' },
     commPct > 0 ? { text:`Mark-up ${(commPct*100).toFixed(1)}%`, cls:'green' } : { text:'No Mark-up', cls:'green' },
-    locDisc > 0 ? { text:`10% Discount — ${locLabel}`, cls:'green' } : { text:`No Discount — ${locLabel}`, cls:'green' },
+    locDisc > 0 ? { text:`10% Discount — ${locLabel}`, cls:'green' } : { text:`No Discount — ${locLabel}`, cls:'yellow' },
     empCount >= MIN_EMP ? { text:'PED & Specific: Nil Waiting', cls:'green' } : { text:'PED & Specific: 1 Year Waiting', cls:'red' },
   ].forEach(t => {
     const s = document.createElement('span');
@@ -922,6 +925,7 @@ async function downloadPDF() {
 
 buildAggTable();
 buildMatTable();
+onPolicyTypeChange();
 </script>
 </body>
 </html>
